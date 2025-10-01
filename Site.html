@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KopyaevBot - Telegram бот для учебы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #c7d2fe;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            border-color: #818cf8;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .feature-card h3 {
+            color: #4c1d95;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card p {
+            color: #6b21a8;
+            line-height: 1.6;
+            font-size: 1em;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px solid #f9a8d4;
+        }
+
+        .cta-section h2 {
+            color: #831843;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .qr-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .qr-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Стили для QR-кода */
+        .qr-image {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: block;
+            background: white;
+        }
+
+        .qr-box p {
+            color: #831843;
+            font-weight: 600;
+            margin-top: 5px;
+            font-size: 1em;
+        }
+
+        .use-now {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            margin: 20px 0;
+        }
+
+        .use-now:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .additional-info {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #fcd34d;
+        }
+
+        .additional-info h3 {
+            color: #78350f;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .additional-info p {
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .qr-section {
+                flex-direction: column;
+            }
+
+            .qr-image {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .telegram-icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #0088cc;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 5px;
+        }
+
+        .link-text {
+            color: #6b21a8;
+            margin-top: 15px;
+            font-weight: 600;
+            line-height: 1.8;
+        }
+
+        .link-text a {
+            color: #764ba2;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .link-text a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 KonyaevBot</h1>
+            <p>Добро пожаловать на сайт посвященный Telegram боту KonyaevBot</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3><span class="icon">📅</span> Устали искать расписание?</h3>
+                <p>Получите расписание не выходя из мессенджера! Быстро, удобно и всегда под рукой.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><span class="icon">⏰</span> Вечно все забываете и не успеваете?</h3>
+                <p>Воспользуйтесь удобной функцией напоминаний! Бот напомнит о важных делах вовремя.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><span class="icon">📝</span> Непонимаете как правильно оформить дипломную работу?</h3>
+                <p>Быстро найдите все методические рекомендации в одном месте.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3><span class="icon">🎮</span> Хотите отдохнуть?</h3>
+                <p>Сыграйте в встроенную игру "Змейка" и соревнуйтесь с друзьями в таблице лидеров!</p>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Используйте уже сейчас!</h2>
+            
+            <div class="qr-section">
+                <div class="qr-box">
+                    <img src="qrcod_7qU9.Png" alt="QR-код KopyaevBot" class="qr-image">
+                    <p><span class="telegram-icon">✈</span> Отсканируйте QR-код</p>
+                    <p style="font-size: 0.9em; color: #9f1239; margin-top: 8px;">или найдите @TverKonyaevBot</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="https://t.me/TverKonyaevBot" class="use-now" target="_blank">
+                        Открыть бота
+                    </a>
+                    <p class="link-text">
+                        или перейдите по ссылке:<br>
+                        <a href="https://t.me/TverKonyaevBot">t.me/TverKonyaevBot</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="additional-info">
+            <h3>✨ И много другого о чем вы и не могли мечтать!</h3>
+            <p>
+                Бот постоянно обновляется и улучшается. Новые функции добавляются регулярно.
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>💜 Создано студентом группы 4-ис1 • 2025</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">
+            Бот работает на базе Python и Telegram Bot API
+        </p>
+    </div>
+
+    <script>
+        // Анимация при наведении на карточки
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.background = 'linear-gradient(135deg, #c7d2fe 0%, #ddd6fe 100%)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.background = 'linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%)';
+            });
+        });
+
+        // Плавная прокрутка и анимация появления
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
