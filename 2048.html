@@ -21,7 +21,7 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         
         .game-container {
@@ -47,7 +47,7 @@
         
         .score-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 15px;
             gap: 10px;
@@ -55,6 +55,7 @@
         
         .score-box {
             flex: 1;
+            max-width: 200px;
             padding: 12px;
             background: #bbada0;
             border-radius: 8px;
@@ -77,14 +78,16 @@
             background: #bbada0;
             border-radius: 10px;
             padding: 10px;
-            display: inline-block;
             margin: 0 auto 15px;
             position: relative;
-            width: 100%;
+            width: calc(100vw - 50px);
             max-width: 400px;
+            aspect-ratio: 1;
         }
         
         .grid {
+            width: 100%;
+            height: 100%;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
@@ -92,17 +95,10 @@
         }
         
         .cell {
-            aspect-ratio: 1;
             background: rgba(238, 228, 218, 0.35);
             border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            font-weight: bold;
-            color: #776e65;
-            position: relative;
-            transition: all 0.15s ease;
+            width: 100%;
+            height: 100%;
         }
         
         .tile {
@@ -133,17 +129,17 @@
         .tile-16 { background: #f59563; color: #f9f6f2; }
         .tile-32 { background: #f67c5f; color: #f9f6f2; }
         .tile-64 { background: #f65e3b; color: #f9f6f2; }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 1.8em; }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 1.8em; }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 1.8em; }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1.5em; }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1.5em; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; }
+        .tile-512 { background: #edc850; color: #f9f6f2; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; }
         
         .controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            max-width: 300px;
+            max-width: 280px;
             margin: 0 auto 15px;
         }
         
@@ -195,7 +191,7 @@
             transition: all 0.2s ease;
             touch-action: manipulation;
             width: 100%;
-            max-width: 300px;
+            max-width: 280px;
         }
         
         .new-game-btn:active {
@@ -282,6 +278,7 @@
             .grid-container {
                 padding: 8px;
                 margin-bottom: 10px;
+                width: calc(100vw - 30px);
             }
             
             .grid {
@@ -290,24 +287,15 @@
             
             .cell {
                 border-radius: 6px;
-                font-size: 1.5em;
             }
             
             .tile {
                 border-radius: 6px;
             }
             
-            .tile-128, .tile-256, .tile-512 {
-                font-size: 1.3em;
-            }
-            
-            .tile-1024, .tile-2048 {
-                font-size: 1.1em;
-            }
-            
             .controls {
                 gap: 8px;
-                max-width: 250px;
+                max-width: 240px;
                 margin-bottom: 10px;
             }
             
@@ -320,7 +308,7 @@
             .new-game-btn {
                 padding: 12px 25px;
                 font-size: 14px;
-                max-width: 250px;
+                max-width: 240px;
             }
             
             .instructions {
@@ -343,25 +331,21 @@
                 font-size: 20px;
             }
             
-            .cell {
-                font-size: 1.3em;
-            }
-            
-            .tile-128, .tile-256, .tile-512 {
-                font-size: 1.1em;
-            }
-            
-            .tile-1024, .tile-2048 {
-                font-size: 0.9em;
+            .grid-container {
+                width: calc(100vw - 20px);
             }
             
             .controls {
-                max-width: 220px;
+                max-width: 200px;
             }
             
             .control-btn {
                 padding: 12px;
                 font-size: 16px;
+            }
+            
+            .new-game-btn {
+                max-width: 200px;
             }
         }
     </style>
@@ -383,7 +367,7 @@
             </div>
         </div>
         
-        <div class="grid-container">
+        <div class="grid-container" id="gridContainer">
             <div class="grid" id="grid"></div>
         </div>
         
@@ -467,12 +451,21 @@
         
         function renderBoard() {
             const grid = document.getElementById('grid');
-            const cells = grid.querySelectorAll('.cell');
+            const gridContainer = document.getElementById('gridContainer');
             const existingTiles = grid.querySelectorAll('.tile');
             existingTiles.forEach(tile => tile.remove());
             
-            const cellSize = cells[0].offsetWidth;
-            const gap = 10;
+            // Получаем размеры с учётом padding
+            const containerRect = gridContainer.getBoundingClientRect();
+            const containerPadding = parseInt(window.getComputedStyle(gridContainer).padding);
+            const gridWidth = containerRect.width - (containerPadding * 2);
+            
+            // Получаем gap из стилей
+            const computedStyle = window.getComputedStyle(grid);
+            const gap = parseInt(computedStyle.gap) || 10;
+            
+            // Вычисляем размер одной ячейки
+            const cellSize = (gridWidth - (gap * (gridSize - 1))) / gridSize;
             
             for (let i = 0; i < gridSize; i++) {
                 for (let j = 0; j < gridSize; j++) {
@@ -480,11 +473,18 @@
                         const tile = document.createElement('div');
                         tile.className = `tile tile-${board[i][j]}`;
                         tile.textContent = board[i][j];
+                        
+                        // Устанавливаем размеры
                         tile.style.width = cellSize + 'px';
                         tile.style.height = cellSize + 'px';
+                        
+                        // Вычисляем позицию с учётом gap
                         tile.style.left = (j * (cellSize + gap)) + 'px';
                         tile.style.top = (i * (cellSize + gap)) + 'px';
+                        
+                        // Адаптивный размер шрифта
                         tile.style.fontSize = getFontSize(board[i][j], cellSize) + 'px';
+                        
                         grid.appendChild(tile);
                     }
                 }
@@ -493,8 +493,8 @@
         
         function getFontSize(value, cellSize) {
             if (value >= 1024) return cellSize * 0.35;
-            if (value >= 128) return cellSize * 0.45;
-            return cellSize * 0.55;
+            if (value >= 128) return cellSize * 0.4;
+            return cellSize * 0.5;
         }
         
         function updateScore() {
@@ -612,12 +612,14 @@
         
         // Обработчики клавиатуры
         document.addEventListener('keydown', (e) => {
-            e.preventDefault();
-            switch(e.key) {
-                case 'ArrowUp': moveUp(); break;
-                case 'ArrowDown': moveDown(); break;
-                case 'ArrowLeft': moveLeft(); break;
-                case 'ArrowRight': moveRight(); break;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                switch(e.key) {
+                    case 'ArrowUp': moveUp(); break;
+                    case 'ArrowDown': moveDown(); break;
+                    case 'ArrowLeft': moveLeft(); break;
+                    case 'ArrowRight': moveRight(); break;
+                }
             }
         });
         
