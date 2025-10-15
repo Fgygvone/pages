@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 - Telegram Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .header {
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #776e65;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .score-box {
+            flex: 1;
+            padding: 15px;
+            background: #bbada0;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .score-label {
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .grid-container {
+            background: #bbada0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            grid-template-rows: repeat(4, 70px);
+            gap: 10px;
+            position: relative;
+        }
+        
+        .cell {
+            background: rgba(238, 228, 218, 0.35);
+            border-radius: 5px;
+            width: 70px;
+            height: 70px;
+        }
+        
+        .tile {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            transition: all 0.15s ease;
+            animation: appear 0.2s ease;
+        }
+        
+        @keyframes appear {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        
+        .tile-2 { background: #eee4da; color: #776e65; }
+        .tile-4 { background: #ede0c8; color: #776e65; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 30px; }
+        .tile-16 { background: #f59563; color: #f9f6f2; font-size: 30px; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: 30px; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: 28px; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 26px; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 26px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 24px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; }
+        .tile-super { background: #3c3a32; color: #f9f6f2; font-size: 18px; }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+            max-width: 240px;
+            margin: 0 auto 20px;
+        }
+        
+        .control-btn {
+            background: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+            background: #9f8a76;
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .control-up { grid-column: 2; grid-row: 1; }
+        .control-left { grid-column: 1; grid-row: 2; }
+        .control-right { grid-column: 3; grid-row: 2; }
+        .control-down { grid-column: 2; grid-row: 3; }
+        
+        .btn {
+            background: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #9f8a76;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #776e65;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions p {
+            color: #776e65;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        
+        .game-over-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-over-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .game-over-content h2 {
+            color: #776e65;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .game-over-content p {
+            color: #776e65;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .final-score {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f67c5f;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: repeat(4, 60px);
+                grid-template-rows: repeat(4, 60px);
+            }
+            
+            .cell, .tile {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+            
+            .tile-8, .tile-16, .tile-32 { font-size: 26px; }
+            .tile-64 { font-size: 24px; }
+            .tile-128, .tile-256 { font-size: 22px; }
+            .tile-512 { font-size: 20px; }
+            .tile-1024, .tile-2048 { font-size: 16px; }
+            .tile-super { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎮 2048</h1>
+        </div>
+        
+        <div class="score-container">
+            <div class="score-box">
+                <div class="score-label">Счёт</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">Рекорд</div>
+                <div class="score-value" id="highScore">0</div>
+            </div>
+        </div>
+        
+        <div class="grid-container">
+            <div class="grid" id="grid"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="control-btn control-up" id="btnUp">↑</button>
+            <button class="control-btn control-left" id="btnLeft">←</button>
+            <button class="control-btn control-right" id="btnRight">→</button>
+            <button class="control-btn control-down" id="btnDown">↓</button>
+        </div>
+        
+        <button class="btn" id="btnNewGame">Новая игра</button>
+        
+        <div class="instructions">
+            <h3>📖 Как играть:</h3>
+            <p>• Используйте стрелки или кнопки для перемещения плиток</p>
+            <p>• Одинаковые числа объединяются при соприкосновении</p>
+            <p>• Цель - получить плитку с числом 2048!</p>
+            <p>• Игра заканчивается, когда нет свободных ходов</p>
+        </div>
+    </div>
+    
+    <div class="game-over-modal" id="gameOverModal">
+        <div class="game-over-content">
+            <h2>🎮 Игра окончена!</h2>
+            <p>Ваш счёт:</p>
+            <div class="final-score" id="finalScore">0</div>
+            <button class="btn" id="btnPlayAgain">Играть снова</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Игровые переменные
+        let grid = [];
+        let score = 0;
+        let highScore = 0;
+        let gameOver = false;
+        const GRID_SIZE = 4;
+        const CELL_SIZE = 70;
+        const CELL_GAP = 10;
+        
+        // DOM элементы
+        const gridElement = document.getElementById('grid');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScoreElement = document.getElementById('finalScore');
+        
+        // Загрузка рекорда из localStorage
+        function loadHighScore() {
+            const saved = localStorage.getItem('2048_highScore');
+            highScore = saved ? parseInt(saved) : 0;
+            highScoreElement.textContent = highScore;
+        }
+        
+        // Сохранение рекорда
+        function saveHighScore() {
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('2048_highScore', highScore);
+                highScoreElement.textContent = highScore;
+            }
+        }
+        
+        // Инициализация игры
+        function initGame() {
+            grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+            score = 0;
+            gameOver = false;
+            scoreElement.textContent = score;
+            gameOverModal.style.display = 'none';
+            
+            // Добавляем две начальные плитки
+            addRandomTile();
+            addRandomTile();
+            renderGrid();
+        }
+        
+        // Добавление случайной плитки
+        function addRandomTile() {
+            const emptyCells = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (grid[i][j] === 0) {
+                        emptyCells.push({row: i, col: j});
+                    }
+                }
+            }
+            
+            if (emptyCells.length > 0) {
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                grid[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+        
+        // Отрисовка сетки
+        function renderGrid() {
+            gridElement.innerHTML = '';
+            
+            // Создаем фоновые ячейки
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    gridElement.appendChild(cell);
+                }
+            }
+            
+            // Создаем плитки с правильным позиционированием
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (grid[i][j] !== 0) {
+                        const tile = document.createElement('div');
+                        const value = grid[i][j];
+                        
+                        tile.className = value > 2048 ? 'tile tile-super' : `tile tile-${value}`;
+                        tile.textContent = value;
+                        
+                        // Вычисляем позицию плитки
+                        const left = j * (CELL_SIZE + CELL_GAP);
+                        const top = i * (CELL_SIZE + CELL_GAP);
+                        
+                        tile.style.left = left + 'px';
+                        tile.style.top = top + 'px';
+                        
+                        gridElement.appendChild(tile);
+                    }
+                }
+            }
+        }
+        
+        // Движение влево
+        function moveLeft() {
+            let moved = false;
+            for (let i = 0; i < GRID_SIZE; i++) {
+                let row = grid[i].filter(cell => cell !== 0);
+                let newRow = [];
+                
+                for (let j = 0; j < row.length; j++) {
+                    if (j < row.length - 1 && row[j] === row[j + 1]) {
+                        newRow.push(row[j] * 2);
+                        score += row[j] * 2;
+                        j++; // Пропускаем следующий элемент
+                    } else {
+                        newRow.push(row[j]);
+                    }
+                }
+                
+                while (newRow.length < GRID_SIZE) {
+                    newRow.push(0);
+                }
+                
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            return moved;
+        }
+        
+        // Движение вправо
+        function moveRight() {
+            let moved = false;
+            for (let i = 0; i < GRID_SIZE; i++) {
+                let row = grid[i].filter(cell => cell !== 0);
+                let newRow = [];
+                
+                for (let j = row.length - 1; j >= 0; j--) {
+                    if (j > 0 && row[j] === row[j - 1]) {
+                        newRow.unshift(row[j] * 2);
+                        score += row[j] * 2;
+                        j--; // Пропускаем предыдущий элемент
+                    } else {
+                        newRow.unshift(row[j]);
+                    }
+                }
+                
+                while (newRow.length < GRID_SIZE) {
+                    newRow.unshift(0);
+                }
+                
+                if (JSON.stringify(newRow) !== JSON.stringify(grid[i])) {
+                    moved = true;
+                }
+                grid[i] = newRow;
+            }
+            return moved;
+        }
+        
+        // Движение вверх
+        function moveUp() {
+            let moved = false;
+            for (let j = 0; j < GRID_SIZE; j++) {
+                let col = [];
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    if (grid[i][j] !== 0) {
+                        col.push(grid[i][j]);
+                    }
+                }
+                
+                let newCol = [];
+                for (let i = 0; i < col.length; i++) {
+                    if (i < col.length - 1 && col[i] === col[i + 1]) {
+                        newCol.push(col[i] * 2);
+                        score += col[i] * 2;
+                        i++; // Пропускаем следующий элемент
+                    } else {
+                        newCol.push(col[i]);
+                    }
+                }
+                
+                while (newCol.length < GRID_SIZE) {
+                    newCol.push(0);
+                }
+                
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    if (grid[i][j] !== newCol[i]) {
+                        moved = true;
+                    }
+                    grid[i][j] = newCol[i];
+                }
+            }
+            return moved;
+        }
+        
+        // Движение вниз
+        function moveDown() {
+            let moved = false;
+            for (let j = 0; j < GRID_SIZE; j++) {
+                let col = [];
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    if (grid[i][j] !== 0) {
+                        col.push(grid[i][j]);
+                    }
+                }
+                
+                let newCol = [];
+                for (let i = col.length - 1; i >= 0; i--) {
+                    if (i > 0 && col[i] === col[i - 1]) {
+                        newCol.unshift(col[i] * 2);
+                        score += col[i] * 2;
+                        i--; // Пропускаем предыдущий элемент
+                    } else {
+                        newCol.unshift(col[i]);
+                    }
+                }
+                
+                while (newCol.length < GRID_SIZE) {
+                    newCol.unshift(0);
+                }
+                
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    if (grid[i][j] !== newCol[i]) {
+                        moved = true;
+                    }
+                    grid[i][j] = newCol[i];
+                }
+            }
+            return moved;
+        }
+        
+        // Проверка возможности хода
+        function canMove() {
+            // Проверяем наличие пустых клеток
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (grid[i][j] === 0) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Проверяем возможность объединения по горизонтали
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE - 1; j++) {
+                    if (grid[i][j] === grid[i][j + 1]) {
+                        return true;
+                    }
+                }
+            }
+            
+            // Проверяем возможность объединения по вертикали
+            for (let j = 0; j < GRID_SIZE; j++) {
+                for (let i = 0; i < GRID_SIZE - 1; i++) {
+                    if (grid[i][j] === grid[i + 1][j]) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        // Обработка хода
+        function makeMove(direction) {
+            if (gameOver) return;
+            
+            let moved = false;
+            switch(direction) {
+                case 'left':
+                    moved = moveLeft();
+                    break;
+                case 'right':
+                    moved = moveRight();
+                    break;
+                case 'up':
+                    moved = moveUp();
+                    break;
+                case 'down':
+                    moved = moveDown();
+                    break;
+            }
+            
+            if (moved) {
+                addRandomTile();
+                scoreElement.textContent = score;
+                saveHighScore();
+                renderGrid();
+                
+                if (!canMove()) {
+                    gameOver = true;
+                    finalScoreElement.textContent = score;
+                    setTimeout(() => {
+                        gameOverModal.style.display = 'flex';
+                    }, 300);
+                }
+            }
+        }
+        
+        // Обработчики событий
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                makeMove('left');
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                makeMove('right');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                makeMove('up');
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                makeMove('down');
+            }
+        });
+        
+        document.getElementById('btnUp').addEventListener('click', () => makeMove('up'));
+        document.getElementById('btnDown').addEventListener('click', () => makeMove('down'));
+        document.getElementById('btnLeft').addEventListener('click', () => makeMove('left'));
+        document.getElementById('btnRight').addEventListener('click', () => makeMove('right'));
+        document.getElementById('btnNewGame').addEventListener('click', initGame);
+        document.getElementById('btnPlayAgain').addEventListener('click', initGame);
+        
+        // Поддержка свайпов для мобильных устройств
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        gridElement.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        gridElement.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 30) {
+                    makeMove('right');
+                } else if (dx < -30) {
+                    makeMove('left');
+                }
+            } else {
+                if (dy > 30) {
+                    makeMove('down');
+                } else if (dy < -30) {
+                    makeMove('up');
+                }
+            }
+        });
+        
+        // Запуск игры
+        loadHighScore();
+        initGame();
+    </script>
+</body>
+</html>
