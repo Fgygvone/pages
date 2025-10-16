@@ -21,11 +21,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 10px;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
+            overflow-x: hidden;
         }
 
         .game-container {
@@ -35,7 +31,6 @@
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
             max-width: 500px;
             width: 100%;
-            touch-action: none;
         }
 
         .header {
@@ -88,13 +83,13 @@
             box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
             touch-action: none;
+            user-select: none;
         }
 
         #gameCanvas {
             display: block;
             width: 100%;
             height: auto;
-            touch-action: none;
         }
 
         .start-screen, .game-over-screen {
@@ -227,7 +222,6 @@
             opacity: 0.9;
         }
 
-        /* Модальное окно подтверждения */
         .confirm-modal {
             position: fixed;
             top: 0;
@@ -239,7 +233,6 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            touch-action: none;
         }
 
         .confirm-content {
@@ -320,7 +313,7 @@
             </div>
         </div>
 
-        <div class="game-canvas-wrapper">
+        <div class="game-canvas-wrapper" id="canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
             
             <div class="start-screen" id="startScreen">
@@ -355,7 +348,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
     <div class="confirm-modal" id="confirmModal">
         <div class="confirm-content">
             <div class="confirm-title">Начать новую игру?</div>
@@ -367,25 +359,19 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ЗАПРЕТ ПРОКРУТКИ СТРАНИЦЫ
-        document.addEventListener('touchmove', function(e) {
+        // ЗАПРЕТ ПРОКРУТКИ только для canvas
+        const canvasWrapper = document.getElementById('canvas-wrapper');
+        canvasWrapper.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        document.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-
-        // Настройка Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Размеры игрового поля
         const GRID_SIZE = 20;
         let canvasSize = Math.min(window.innerWidth - 60, 460);
         canvas.width = canvasSize;
@@ -393,7 +379,6 @@
 
         const CELL_SIZE = canvasSize / GRID_SIZE;
 
-        // Игровые переменные
         let snake = [{x: 10, y: 10}];
         let food = {x: 15, y: 15};
         let dx = 0;
@@ -406,14 +391,12 @@
 
         document.getElementById('highScore').textContent = highScore;
 
-        // Генерация еды
         function generateFood() {
             food = {
                 x: Math.floor(Math.random() * GRID_SIZE),
                 y: Math.floor(Math.random() * GRID_SIZE)
             };
             
-            // Проверка, что еда не появилась на змейке
             for (let segment of snake) {
                 if (segment.x === food.x && segment.y === food.y) {
                     generateFood();
@@ -422,13 +405,10 @@
             }
         }
 
-        // Отрисовка игры
         function draw() {
-            // Очистка canvas
             ctx.fillStyle = '#f0f0f0';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Рисуем сетку
             ctx.strokeStyle = '#e0e0e0';
             ctx.lineWidth = 1;
             for (let i = 0; i <= GRID_SIZE; i++) {
@@ -443,7 +423,6 @@
                 ctx.stroke();
             }
 
-            // Рисуем змейку
             snake.forEach((segment, index) => {
                 ctx.fillStyle = index === 0 ? '#2d5016' : '#4CAF50';
                 ctx.fillRect(
@@ -453,7 +432,6 @@
                     CELL_SIZE - 4
                 );
                 
-                // Глаза для головы
                 if (index === 0) {
                     ctx.fillStyle = 'white';
                     const eyeSize = CELL_SIZE / 6;
@@ -472,7 +450,6 @@
                 }
             });
 
-            // Рисуем еду
             ctx.fillStyle = '#ff4444';
             ctx.beginPath();
             ctx.arc(
@@ -485,19 +462,16 @@
             ctx.fill();
         }
 
-        // Обновление игры
         function update() {
             if (!gameStarted) return;
 
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-            // Проверка столкновения со стенами
             if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
                 gameOver();
                 return;
             }
 
-            // Проверка столкновения с собой
             for (let segment of snake) {
                 if (segment.x === head.x && segment.y === head.y) {
                     gameOver();
@@ -507,13 +481,11 @@
 
             snake.unshift(head);
 
-            // Проверка поедания еды
             if (head.x === food.x && head.y === food.y) {
                 score++;
                 document.getElementById('score').textContent = score;
                 generateFood();
                 
-                // Увеличение скорости
                 if (score % 5 === 0 && gameSpeed > 50) {
                     gameSpeed -= 10;
                     clearInterval(gameLoop);
@@ -529,7 +501,6 @@
             draw();
         }
 
-        // Начало игры
         function startGame() {
             snake = [{x: 10, y: 10}];
             dx = 1;
@@ -552,7 +523,6 @@
             }, gameSpeed);
         }
 
-        // Окончание игры
         function gameOver() {
             gameStarted = false;
             clearInterval(gameLoop);
@@ -560,7 +530,6 @@
             document.getElementById('finalScore').textContent = score;
             document.getElementById('gameOverScreen').style.display = 'flex';
             
-            // Обновление рекорда
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('snakeHighScore', highScore);
@@ -570,7 +539,6 @@
                 document.getElementById('finalMessage').textContent = 'очков';
             }
 
-            // Отправка результата в Telegram
             try {
                 tg.sendData(JSON.stringify({score: score}));
             } catch (e) {
@@ -578,7 +546,6 @@
             }
         }
 
-        // Обработчики событий
         document.getElementById('startBtn').addEventListener('click', startGame);
         
         document.getElementById('restartBtn').addEventListener('click', () => {
@@ -589,7 +556,6 @@
             }
         });
 
-        // Обработчики модального окна подтверждения
         document.getElementById('confirmYes').addEventListener('click', () => {
             document.getElementById('confirmModal').style.display = 'none';
             startGame();
@@ -599,7 +565,6 @@
             document.getElementById('confirmModal').style.display = 'none';
         });
 
-        // Управление с клавиатуры
         document.addEventListener('keydown', (e) => {
             if (!gameStarted) return;
             
@@ -623,7 +588,6 @@
             }
         });
 
-        // Управление кнопками
         document.getElementById('upBtn').addEventListener('click', () => {
             if (gameStarted && dy === 0) { dx = 0; dy = -1; }
         });
@@ -640,16 +604,15 @@
             if (gameStarted && dx === 0) { dx = 1; dy = 0; }
         });
 
-        // Управление свайпами
         let touchStartX = 0;
         let touchStartY = 0;
 
-        canvas.addEventListener('touchstart', (e) => {
+        canvasWrapper.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
         }, { passive: true });
 
-        canvas.addEventListener('touchend', (e) => {
+        canvasWrapper.addEventListener('touchend', (e) => {
             if (!gameStarted) return;
             
             const touchEndX = e.changedTouches[0].clientX;
@@ -679,10 +642,8 @@
             }
         }, { passive: true });
 
-        // Начальная отрисовка
         draw();
 
-        // Адаптация под изменение размера окна
         window.addEventListener('resize', () => {
             canvasSize = Math.min(window.innerWidth - 60, 460);
             canvas.width = canvasSize;
