@@ -21,11 +21,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 10px;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
+            overflow-x: hidden;
         }
 
         .container {
@@ -35,7 +31,6 @@
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
             max-width: 500px;
             width: 100%;
-            touch-action: none;
         }
 
         .header {
@@ -110,19 +105,31 @@
             padding: 10px;
             position: relative;
             touch-action: none;
+            user-select: none;
+        }
+
+        .grid-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
         }
 
         .grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            position: relative;
         }
 
         .cell {
             background: rgba(238, 228, 218, 0.35);
             border-radius: 5px;
-            aspect-ratio: 1;
+            width: 100%;
+            padding-bottom: 100%;
             position: relative;
         }
 
@@ -221,7 +228,6 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            touch-action: none;
         }
 
         .game-over-content {
@@ -277,7 +283,6 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
-            touch-action: none;
         }
 
         .confirm-content {
@@ -364,9 +369,11 @@
 
         <button class="new-game-btn" id="new-game-btn">Новая игра</button>
 
-        <div class="game-board">
-            <div class="grid" id="game-grid">
-                <!-- Генерируется JS -->
+        <div class="game-board" id="game-board">
+            <div class="grid-container">
+                <div class="grid" id="game-grid">
+                    <!-- Генерируется JS -->
+                </div>
             </div>
         </div>
 
@@ -414,12 +421,9 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ЗАПРЕТ ПРОКРУТКИ СТРАНИЦЫ
-        document.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-
-        document.addEventListener('touchstart', function(e) {
+        // ЗАПРЕТ ПРОКРУТКИ только для игрового поля
+        const gameBoard = document.getElementById('game-board');
+        gameBoard.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
@@ -609,21 +613,18 @@
             }
 
             isGameOver() {
-                // Проверяем наличие пустых клеток
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size; j++) {
                         if (this.grid[i][j] === 0) return false;
                     }
                 }
 
-                // Проверяем возможность слияния по горизонтали
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size - 1; j++) {
                         if (this.grid[i][j] === this.grid[i][j + 1]) return false;
                     }
                 }
 
-                // Проверяем возможность слияния по вертикали
                 for (let i = 0; i < this.size - 1; i++) {
                     for (let j = 0; j < this.size; j++) {
                         if (this.grid[i][j] === this.grid[i + 1][j]) return false;
@@ -642,7 +643,6 @@
                     this.saveBestScore();
                 }
 
-                // Отправляем результат в Telegram
                 try {
                     tg.sendData(JSON.stringify({score: this.score}));
                 } catch (e) {
@@ -661,8 +661,12 @@
                     gameGrid.appendChild(cell);
                 }
 
+                // Получаем размер контейнера
+                const gridContainer = gameGrid.parentElement;
+                const containerSize = gridContainer.offsetWidth;
+                const cellSize = (containerSize - (this.size + 1) * 10) / this.size;
+
                 // Создаем плитки
-                const cellSize = gameGrid.offsetWidth / this.size;
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size; j++) {
                         const value = this.grid[i][j];
@@ -670,10 +674,10 @@
                             const tile = document.createElement('div');
                             tile.className = `tile tile-${value}`;
                             tile.textContent = value;
-                            tile.style.width = `${cellSize - 10}px`;
-                            tile.style.height = `${cellSize - 10}px`;
-                            tile.style.left = `${j * cellSize + 10}px`;
-                            tile.style.top = `${i * cellSize + 10}px`;
+                            tile.style.width = `${cellSize}px`;
+                            tile.style.height = `${cellSize}px`;
+                            tile.style.left = `${j * (cellSize + 10) + 10}px`;
+                            tile.style.top = `${i * (cellSize + 10) + 10}px`;
                             gameGrid.appendChild(tile);
                         }
                     }
@@ -684,7 +688,6 @@
             }
 
             setupControls() {
-                // Клавиатура
                 document.addEventListener('keydown', (e) => {
                     if (!this.gameStarted) return;
                     
@@ -708,7 +711,6 @@
                     }
                 });
 
-                // Кнопки управления
                 document.getElementById('btn-up').addEventListener('click', () => this.move('up'));
                 document.getElementById('btn-down').addEventListener('click', () => this.move('down'));
                 document.getElementById('btn-left').addEventListener('click', () => this.move('left'));
@@ -721,8 +723,6 @@
                 let touchEndX = 0;
                 let touchEndY = 0;
 
-                const gameBoard = document.querySelector('.game-board');
-
                 gameBoard.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
                     touchStartY = e.changedTouches[0].screenY;
@@ -733,42 +733,30 @@
                     
                     touchEndX = e.changedTouches[0].screenX;
                     touchEndY = e.changedTouches[0].screenY;
-                    this.handleSwipe();
+                    
+                    const deltaX = touchEndX - touchStartX;
+                    const deltaY = touchEndY - touchStartY;
+                    const minSwipeDistance = 30;
+
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        if (Math.abs(deltaX) > minSwipeDistance) {
+                            if (deltaX > 0) {
+                                this.move('right');
+                            } else {
+                                this.move('left');
+                            }
+                        }
+                    } else {
+                        if (Math.abs(deltaY) > minSwipeDistance) {
+                            if (deltaY > 0) {
+                                this.move('down');
+                            } else {
+                                this.move('up');
+                            }
+                        }
+                    }
                 }, { passive: true });
             }
-
-            handleSwipe() {
-                const deltaX = this.touchEndX - this.touchStartX;
-                const deltaY = this.touchEndY - this.touchStartY;
-                const minSwipeDistance = 30;
-
-                if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                    if (Math.abs(deltaX) > minSwipeDistance) {
-                        if (deltaX > 0) {
-                            this.move('right');
-                        } else {
-                            this.move('left');
-                        }
-                    }
-                } else {
-                    if (Math.abs(deltaY) > minSwipeDistance) {
-                        if (deltaY > 0) {
-                            this.move('down');
-                        } else {
-                            this.move('up');
-                        }
-                    }
-                }
-            }
-
-            get touchStartX() { return this._touchStartX || 0; }
-            set touchStartX(val) { this._touchStartX = val; }
-            get touchStartY() { return this._touchStartY || 0; }
-            set touchStartY(val) { this._touchStartY = val; }
-            get touchEndX() { return this._touchEndX || 0; }
-            set touchEndX(val) { this._touchEndX = val; }
-            get touchEndY() { return this._touchEndY || 0; }
-            set touchEndY(val) { this._touchEndY = val; }
         }
 
         // Инициализация игры
@@ -777,15 +765,12 @@
         // Обработчик кнопки "Новая игра" с подтверждением
         document.getElementById('new-game-btn').addEventListener('click', () => {
             if (game.gameStarted && game.score > 0) {
-                // Показываем модальное окно подтверждения
                 document.getElementById('confirm-modal').style.display = 'flex';
             } else {
-                // Если игра не начата или счёт 0, начинаем сразу
                 startNewGame();
             }
         });
 
-        // Обработчики модального окна
         document.getElementById('confirm-yes').addEventListener('click', () => {
             document.getElementById('confirm-modal').style.display = 'none';
             startNewGame();
@@ -795,7 +780,6 @@
             document.getElementById('confirm-modal').style.display = 'none';
         });
 
-        // Обработчик кнопки "Играть снова" на экране Game Over
         document.getElementById('play-again-btn').addEventListener('click', () => {
             document.getElementById('game-over').style.display = 'none';
             startNewGame();
@@ -805,7 +789,6 @@
             game = new Game2048();
         }
 
-        // Предотвращаем случайное закрытие
         window.addEventListener('beforeunload', (e) => {
             if (game.gameStarted && game.score > 0) {
                 e.preventDefault();
