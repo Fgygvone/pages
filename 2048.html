@@ -13,15 +13,21 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 10px;
-            overflow-x: hidden;
         }
 
         .container {
@@ -31,6 +37,9 @@
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
             max-width: 500px;
             width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .header {
@@ -90,13 +99,9 @@
             touch-action: manipulation;
         }
 
-        .new-game-btn:hover {
-            background: #9f8a76;
-            transform: translateY(-2px);
-        }
-
         .new-game-btn:active {
-            transform: translateY(0);
+            background: #9f8a76;
+            transform: scale(0.98);
         }
 
         .game-board {
@@ -104,33 +109,28 @@
             border-radius: 10px;
             padding: 10px;
             position: relative;
+            width: 100%;
+            aspect-ratio: 1;
             touch-action: none;
             user-select: none;
-        }
-
-        .grid-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 100%;
+            -webkit-user-select: none;
         }
 
         .grid {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
             gap: 10px;
         }
 
         .cell {
             background: rgba(238, 228, 218, 0.35);
             border-radius: 5px;
-            width: 100%;
-            padding-bottom: 100%;
-            position: relative;
         }
 
         .tile {
@@ -266,12 +266,11 @@
             touch-action: manipulation;
         }
 
-        .play-again-btn:hover {
+        .play-again-btn:active {
             background: #9f8a76;
-            transform: scale(1.05);
+            transform: scale(0.98);
         }
 
-        /* Модальное окно подтверждения */
         .confirm-modal {
             position: fixed;
             top: 0;
@@ -370,10 +369,8 @@
         <button class="new-game-btn" id="new-game-btn">Новая игра</button>
 
         <div class="game-board" id="game-board">
-            <div class="grid-container">
-                <div class="grid" id="game-grid">
-                    <!-- Генерируется JS -->
-                </div>
+            <div class="grid" id="game-grid">
+                <!-- Генерируется JS -->
             </div>
         </div>
 
@@ -394,7 +391,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения -->
     <div class="confirm-modal" id="confirm-modal">
         <div class="confirm-content">
             <div class="confirm-title">Начать новую игру?</div>
@@ -405,7 +401,6 @@
         </div>
     </div>
 
-    <!-- Экран окончания игры -->
     <div class="game-over" id="game-over">
         <div class="game-over-content">
             <div class="game-over-title">Игра окончена!</div>
@@ -416,18 +411,31 @@
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ЗАПРЕТ ПРОКРУТКИ только для игрового поля
+        // ПОЛНАЯ БЛОКИРОВКА СКРОЛЛА на игровом поле
         const gameBoard = document.getElementById('game-board');
-        gameBoard.addEventListener('touchmove', function(e) {
+        
+        gameBoard.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        gameBoard.addEventListener('touchmove', (e) => {
             e.preventDefault();
+            e.stopPropagation();
         }, { passive: false });
 
-        // Класс игры 2048
+        gameBoard.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
+
+        // Блокируем скролл body во время игры
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+
         class Game2048 {
             constructor() {
                 this.size = 4;
@@ -661,12 +669,13 @@
                     gameGrid.appendChild(cell);
                 }
 
-                // Получаем размер контейнера
-                const gridContainer = gameGrid.parentElement;
-                const containerSize = gridContainer.offsetWidth;
-                const cellSize = (containerSize - (this.size + 1) * 10) / this.size;
+                // Получаем размеры игрового поля
+                const boardRect = gameBoard.getBoundingClientRect();
+                const boardSize = boardRect.width - 20; // минус padding
+                const gap = 10;
+                const cellSize = (boardSize - gap * (this.size - 1)) / this.size;
 
-                // Создаем плитки
+                // Создаем плитки с правильными координатами
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size; j++) {
                         const value = this.grid[i][j];
@@ -674,10 +683,15 @@
                             const tile = document.createElement('div');
                             tile.className = `tile tile-${value}`;
                             tile.textContent = value;
+                            
+                            const left = j * (cellSize + gap);
+                            const top = i * (cellSize + gap);
+                            
                             tile.style.width = `${cellSize}px`;
                             tile.style.height = `${cellSize}px`;
-                            tile.style.left = `${j * (cellSize + 10) + 10}px`;
-                            tile.style.top = `${i * (cellSize + 10) + 10}px`;
+                            tile.style.left = `${left}px`;
+                            tile.style.top = `${top}px`;
+                            
                             gameGrid.appendChild(tile);
                         }
                     }
@@ -720,19 +734,17 @@
             setupSwipe() {
                 let touchStartX = 0;
                 let touchStartY = 0;
-                let touchEndX = 0;
-                let touchEndY = 0;
 
                 gameBoard.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                    touchStartY = e.changedTouches[0].screenY;
+                    touchStartX = e.changedTouches[0].clientX;
+                    touchStartY = e.changedTouches[0].clientY;
                 }, { passive: true });
 
                 gameBoard.addEventListener('touchend', (e) => {
                     if (!this.gameStarted) return;
                     
-                    touchEndX = e.changedTouches[0].screenX;
-                    touchEndY = e.changedTouches[0].screenY;
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
                     
                     const deltaX = touchEndX - touchStartX;
                     const deltaY = touchEndY - touchStartY;
@@ -740,29 +752,19 @@
 
                     if (Math.abs(deltaX) > Math.abs(deltaY)) {
                         if (Math.abs(deltaX) > minSwipeDistance) {
-                            if (deltaX > 0) {
-                                this.move('right');
-                            } else {
-                                this.move('left');
-                            }
+                            this.move(deltaX > 0 ? 'right' : 'left');
                         }
                     } else {
                         if (Math.abs(deltaY) > minSwipeDistance) {
-                            if (deltaY > 0) {
-                                this.move('down');
-                            } else {
-                                this.move('up');
-                            }
+                            this.move(deltaY > 0 ? 'down' : 'up');
                         }
                     }
                 }, { passive: true });
             }
         }
 
-        // Инициализация игры
         let game = new Game2048();
 
-        // Обработчик кнопки "Новая игра" с подтверждением
         document.getElementById('new-game-btn').addEventListener('click', () => {
             if (game.gameStarted && game.score > 0) {
                 document.getElementById('confirm-modal').style.display = 'flex';
@@ -789,11 +791,9 @@
             game = new Game2048();
         }
 
-        window.addEventListener('beforeunload', (e) => {
-            if (game.gameStarted && game.score > 0) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
+        // Обновление при изменении размера
+        window.addEventListener('resize', () => {
+            game.updateDisplay();
         });
     </script>
 </body>
