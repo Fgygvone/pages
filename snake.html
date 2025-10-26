@@ -178,37 +178,6 @@
             left: 0;
         }
 
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            max-width: 200px;
-            margin: 15px auto;
-        }
-
-        .control-btn {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
-            touch-action: manipulation;
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
-        }
-
-        .control-up { grid-column: 2; }
-        .control-left { grid-column: 1; grid-row: 2; }
-        .control-down { grid-column: 2; grid-row: 2; }
-        .control-right { grid-column: 3; grid-row: 2; }
-
         .game-over-title {
             font-size: 32px;
             margin-bottom: 20px;
@@ -335,17 +304,10 @@
             </div>
         </div>
 
-        <div class="controls">
-            <button class="control-btn control-up" id="upBtn">⬆️</button>
-            <button class="control-btn control-left" id="leftBtn">⬅️</button>
-            <button class="control-btn control-down" id="downBtn">⬇️</button>
-            <button class="control-btn control-right" id="rightBtn">➡️</button>
-        </div>
-
         <div class="instructions">
             <h3>🎮 Как играть:</h3>
             <ul>
-                <li>Управляйте змейкой с помощью кнопок или клавиш стрелок</li>
+                <li>Управляйте змейкой с помощью клавиш стрелок или свайпов</li>
                 <li>Собирайте красные яблоки для получения очков</li>
                 <li>Избегайте столкновений со стенами и собой</li>
                 <li>Чем длиннее змейка, тем сложнее управление!</li>
@@ -368,7 +330,6 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ПОЛНАЯ БЛОКИРОВКА СКРОЛЛА на canvas
         const canvasWrapper = document.getElementById('canvas-wrapper');
         
         canvasWrapper.addEventListener('touchstart', (e) => {
@@ -384,7 +345,6 @@
             e.stopPropagation();
         }, { passive: false });
 
-        // Блокируем скролл body
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
@@ -606,22 +566,6 @@
                     e.preventDefault();
                     break;
             }
-        });
-
-        document.getElementById('upBtn').addEventListener('click', () => {
-            if (gameStarted && dy === 0) { dx = 0; dy = -1; }
-        });
-        
-        document.getElementById('downBtn').addEventListener('click', () => {
-            if (gameStarted && dy === 0) { dx = 0; dy = 1; }
-        });
-        
-        document.getElementById('leftBtn').addEventListener('click', () => {
-            if (gameStarted && dx === 0) { dx = -1; dy = 0; }
-        });
-        
-        document.getElementById('rightBtn').addEventListener('click', () => {
-            if (gameStarted && dx === 0) { dx = 1; dy = 0; }
         });
 
         let touchStartX = 0;
