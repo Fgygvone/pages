@@ -374,13 +374,6 @@
             </div>
         </div>
 
-        <div class="controls">
-            <button class="control-btn control-up" id="btn-up">⬆️</button>
-            <button class="control-btn control-left" id="btn-left">⬅️</button>
-            <button class="control-btn control-down" id="btn-down">⬇️</button>
-            <button class="control-btn control-right" id="btn-right">➡️</button>
-        </div>
-
         <div class="instructions">
             <ul>
                 <li>Используйте стрелки на клавиатуре или кнопки</li>
@@ -415,7 +408,6 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ПОЛНАЯ БЛОКИРОВКА СКРОЛЛА на игровом поле
         const gameBoard = document.getElementById('game-board');
         
         gameBoard.addEventListener('touchstart', (e) => {
@@ -431,7 +423,6 @@
             e.stopPropagation();
         }, { passive: false });
 
-        // Блокируем скролл body во время игры
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
@@ -662,20 +653,17 @@
                 const gameGrid = document.getElementById('game-grid');
                 gameGrid.innerHTML = '';
 
-                // Создаем фоновые ячейки
                 for (let i = 0; i < this.size * this.size; i++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     gameGrid.appendChild(cell);
                 }
 
-                // Получаем размеры игрового поля
                 const boardRect = gameBoard.getBoundingClientRect();
-                const boardSize = boardRect.width - 20; // минус padding
+                const boardSize = boardRect.width - 20;
                 const gap = 10;
                 const cellSize = (boardSize - gap * (this.size - 1)) / this.size;
 
-                // Создаем плитки с правильными координатами
                 for (let i = 0; i < this.size; i++) {
                     for (let j = 0; j < this.size; j++) {
                         const value = this.grid[i][j];
@@ -724,11 +712,6 @@
                             break;
                     }
                 });
-
-                document.getElementById('btn-up').addEventListener('click', () => this.move('up'));
-                document.getElementById('btn-down').addEventListener('click', () => this.move('down'));
-                document.getElementById('btn-left').addEventListener('click', () => this.move('left'));
-                document.getElementById('btn-right').addEventListener('click', () => this.move('right'));
             }
 
             setupSwipe() {
@@ -791,10 +774,10 @@
             game = new Game2048();
         }
 
-        // Обновление при изменении размера
         window.addEventListener('resize', () => {
             game.updateDisplay();
         });
     </script>
 </body>
 </html>
+
