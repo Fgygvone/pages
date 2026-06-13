@@ -6,15 +6,13 @@
 <title>Pro Texture Gen v3 - Wide UI</title>
 <style>
     :root {
-        --bg-body: #0f1219; /* Очень темный фон для экрана */
-        --bg-card: #1a1d26; /* Фон карточек */
-        --bg-input: #232732; /* Фон полей ввода */
-        --accent-main: #5e6aff; /* Основной акцент (синий) */
+        --bg-body: #0f1219; 
+        --bg-card: #1a1d26; 
+        --bg-input: #232732; 
+        --accent-main: #5e6aff; 
         --accent-hover: #4b55ff;
         --text-primary: #ffffff;
         --text-secondary: #9ca3af;
-        
-        /* Цвета Positive/Negative */
         --pos-bg: rgba(16, 185, 129, 0.15);
         --pos-border: rgba(16, 185, 129, 0.4);
         --neg-bg: rgba(239, 68, 68, 0.15);
@@ -33,16 +31,14 @@
         padding: 40px 20px;
     }
 
-    /* Главный контейнер на всю ширину */
     .main-wrapper {
         width: 100%;
-        max-width: 1200px; /* Максимальная ширина для читаемости */
+        max-width: 1200px; 
         display: grid;
-        grid-template-columns: 350px 1fr; /* Левая колонка фиксированная, правая резиновая */
+        grid-template-columns: 350px 1fr; 
         gap: 24px;
     }
 
-    /* Карточка настроек (Левая часть) */
     .settings-card {
         background-color: var(--bg-card);
         padding: 30px;
@@ -56,22 +52,19 @@
     .header-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #333; padding-bottom: 10px;}
     .header-title span { color: var(--accent-main); }
 
-    /* Поля ввода */
     .input-wrapper { display: flex; flex-direction: column; gap: 8px; position: relative; }
     label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
     
     input, select { 
         width: 100%; 
-        height: 48px; /* Увеличенная высота */
+        height: 48px; 
         padding: 0 14px;
         background-color: var(--bg-input); 
         border: 2px solid transparent; 
         border-radius: 10px; 
         color: white; 
         font-size: 15px;
-        font-weight: 400;
         transition: all 0.2s ease;
-        cursor: pointer;
     }
 
     input:focus, select:focus { 
@@ -80,7 +73,18 @@
         box-shadow: 0 0 0 4px rgba(94, 106, 255, 0.15);
     }
 
-    /* Кнопки */
+    /* Стиль для опции "без выбора" */
+    select option[value=""] {
+        color: #6b7280;
+        font-style: italic;
+    }
+
+    /* Когда выбрано "без выбора" — подсвечиваем select серым */
+    select.no-selection {
+        color: #6b7280;
+        border-color: rgba(107, 114, 128, 0.3);
+    }
+
     .btn-generate {
         width: 100%;
         height: 56px;
@@ -91,20 +95,26 @@
         font-size: 16px;
         font-weight: 700;
         cursor: pointer;
-        margin-top: auto; /* Прижимает кнопку вниз */
+        margin-top: auto; 
         transition: transform 0.2s, box-shadow 0.2s;
         display: flex; align-items: center; justify-content: center; gap: 10px;
     }
     .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(94, 106, 255, 0.3); }
 
-    /* Правая колонка (Результат) */
-    .result-card {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+    /* Счётчик активных параметров */
+    .params-counter {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-align: center;
+        padding: 6px;
+        background: rgba(94, 106, 255, 0.08);
+        border-radius: 6px;
+        border: 1px solid rgba(94, 106, 255, 0.15);
     }
+    .params-counter span { color: var(--accent-main); font-weight: 700; }
 
-    /* Блоки промптов */
+    .result-card { display: flex; flex-direction: column; gap: 20px; }
+
     .prompt-block { 
         background: var(--bg-card); 
         border-radius: 16px; 
@@ -112,7 +122,7 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        height: 380px; /* Фиксированная удобная высота */
+        height: 380px; 
     }
 
     .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;}
@@ -122,7 +132,6 @@
     .badge-pos { background: var(--pos-bg); border: 1px solid var(--pos-border); color: #a7f3d0; }
     .badge-neg { background: var(--neg-bg); border: 1px solid var(--neg-border); color: #fecaca; }
 
-    /* Текстовая область */
     textarea { 
         width: 100%; 
         height: 100%; 
@@ -133,14 +142,12 @@
         font-family: 'Consolas', 'Monaco', monospace; 
         font-size: 14px; 
         line-height: 1.6;
-        overflow-y: auto; /* Появляется скролл только если текст большой */
+        overflow-y: auto; 
     }
     
-    /* Кастомный скроллбар для красоты */
     textarea::-webkit-scrollbar { width: 8px; }
     textarea::-webkit-scrollbar-track { background: transparent; }
     textarea::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-    textarea::-webkit-scrollbar-thumb:hover { background: #4b5563; }
 
     .btn-copy-small { 
         background: rgba(255,255,255,0.05); 
@@ -150,11 +157,9 @@
         border-radius: 6px; 
         cursor: pointer; 
         font-size: 13px;
-        transition: 0.2s;
     }
     .btn-copy-small:hover { background: rgba(255,255,255,0.1); color: white; }
 
-    /* Блок настроек генерации (Steps/CFG) */
     .settings-grid { 
         display: grid; 
         grid-template-columns: 1fr 1fr 1fr; 
@@ -162,13 +167,12 @@
         padding: 16px 24px;
         border-radius: 12px;
         background: rgba(0,0,0,0.2);
-        margin-top: auto; /* Прижимает к низу */
+        margin-top: auto; 
     }
     .setting-item { display: flex; flex-direction: column; align-items: center; gap: 4px;}
     .s-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
     .s-value { font-family: 'Consolas', monospace; font-weight: 700; color: var(--text-primary); font-size: 14px; }
 
-    /* Уведомление */
     .toast { 
         position: fixed; 
         bottom: 30px; 
@@ -186,27 +190,38 @@
     }
     .toast.show { transform: translateY(0); }
 
+    @media (max-width: 768px) {
+        body { padding: 20px 15px; }
+        .main-wrapper { grid-template-columns: 1fr; gap: 30px; }
+        .settings-card { padding: 20px; }
+        .header-title { font-size: 16px; }
+        input, select { height: 44px; font-size: 14px; }
+        .btn-generate { height: 50px; font-size: 14px; }
+        .prompt-block { padding: 20px; height: auto; min-height: 300px; }
+        textarea { font-size: 13px; line-height: 1.5; }
+        .settings-grid { grid-template-columns: 1fr; gap: 8px; margin-top: 20px;}
+    }
 </style>
 </head>
 <body>
 
 <div class="main-wrapper">
-    <!-- ЛЕВАЯ КОЛОНКА: НАСТРОЙКИ -->
     <div class="settings-card">
         <div class="header-title">
             Параметры <span>Текстуры</span>
         </div>
 
         <div class="input-wrapper">
-            <label>Название текстуры</label>
-            <input type="text" id="textureName" placeholder="Введите название, например: Мокрый кирпич..." autocomplete="off">
+            <label>Название текстуры (Required)</label>
+            <input type="text" id="textureName" placeholder="Введите название..." autocomplete="off">
         </div>
 
         <div class="input-wrapper">
-            <label>Стиль игры / АРТА</label>
-            <select id="gameStyle">
+            <label>Стиль игры / АРТА (Optional)</label>
+            <select id="gameStyle" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="realistic">Фотореализм (Photorealistic)</option>
-                <option value="stylized" selected>Стилизованный (Artistic)</option>
+                <option value="stylized">Стилизованный (Artistic)</option>
                 <option value="lowpoly">Low Poly / Indie</option>
                 <option value="scifi">Sci-Fi / Cyberpunk</option>
                 <option value="fantasy">High Fantasy</option>
@@ -215,10 +230,11 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Поверхность (Surface)</label>
-            <select id="surfaceType">
+            <label>Поверхность (Surface) (Optional)</label>
+            <select id="surfaceType" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="floor">Пол / Земля</option>
-                <option value="wall" selected>Стена</option>
+                <option value="wall">Стена</option>
                 <option value="ceiling">Потолок</option>
                 <option value="organic">Органика / Природа</option>
                 <option value="metal">Металл</option>
@@ -227,43 +243,48 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Состояние (Condition)</label>
-            <select id="condition">
+            <label>Состояние (Condition) (Optional)</label>
+            <select id="condition" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="new">Новое / Идеальное</option>
-                <option value="used" selected>Потёртое (Used)</option>
+                <option value="used">Потёртое (Used)</option>
                 <option value="old">Старое (Ancient)</option>
                 <option value="ruined">Разрушенное</option>
             </select>
         </div>
 
         <div class="input-wrapper">
-            <label>Тип укладки (Pattern)</label>
-            <select id="tilingPattern">
-                <option value="straight" selected>Прямая укладка (Straight)</option>
+            <label>Тип укладки (Pattern) (Optional)</label>
+            <select id="tilingPattern" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
+                <option value="straight">Прямая укладка (Straight)</option>
                 <option value="brick">Кирпичная укладка (Brick pattern)</option>
                 <option value="grid">Сетка / Рамки (Grid)</option>
             </select>
         </div>
 
         <div class="input-wrapper">
-            <label>Цветовая гамма</label>
-            <select id="colorPalette">
+            <label>Цветовая гамма (Optional)</label>
+            <select id="colorPalette" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="neutral">Нейтральная (Neutral Grey)</option>
                 <option value="warm">Теплая (Warm Earth)</option>
                 <option value="cool">Холодная (Cool Blue)</option>
             </select>
         </div>
 
-        <!-- Кнопка Генерации -->
+        <!-- Счётчик активных параметров -->
+        <div class="params-counter" id="paramsCounter">
+            Активных параметров: <span id="activeCount">0</span> из 5
+        </div>
+
         <button class="btn-generate" onclick="generatePrompt()">
             ⚡ <span id="btnText">Сгенерировать промпт</span>
         </button>
     </div>
 
-    <!-- ПРАВАЯ КОЛОНКА: РЕЗУЛЬТАТ -->
     <div class="result-card">
         
-        <!-- Блок Positive Prompt -->
         <div class="prompt-block" style="border-top: 4px solid var(--pos-border); border-bottom: none; background: rgba(16, 185, 129, 0.03);">
             <div class="block-header">
                 <div class="label-row"><span class="badge badge-pos">Positive Prompt</span></div>
@@ -271,7 +292,6 @@
             </div>
             <textarea id="positive-area" readonly></textarea>
             
-            <!-- Настройки генерации под промптом -->
             <div class="settings-grid">
                 <div class="setting-item"><span class="s-label">Steps</span><span class="s-value" id="disp-steps" style="color:#fff;">4</span></div>
                 <div class="setting-item"><span class="s-label">CFG Scale</span><span class="s-value" id="disp-cfg" style="color:#fbbf24;">1.0</span></div>
@@ -279,7 +299,6 @@
             </div>
         </div>
 
-        <!-- Блок Negative Prompt -->
         <div class="prompt-block" style="border-top: 4px solid var(--neg-border); border-bottom: none; background: rgba(0,0,0,0.2);">
             <div class="block-header">
                 <div class="label-row"><span class="badge badge-neg">Negative Prompt</span></div>
@@ -296,7 +315,6 @@
 </div>
 
 <script>
-// --- ЛОГИКА ПОСТРОЕНИЯ ПРОМПТА ---
 const styleMap = {
     realistic: { 
         keywords_en: 'photorealistic, ultra-detailed, physically accurate, raytracing, cinematic lighting', 
@@ -346,18 +364,42 @@ const conditionMap = {
     ruined: 'severely damaged, crumbling structure, broken pieces, destruction'
 };
 
-// Цветовые палитры
-const paletteMap = {
-    neutral: ', grey palette, monochromatic lighting, no strong color saturation',
-    warm: ', brown and orange hues, warm ambient light, dusty colors',
-    cool: ', blue and teal hues, cold ambient light, ice tones'
+const patternMap = {
+    straight: 'straight tiling pattern',
+    brick: 'brick bond tiling pattern',
+    grid: 'grid tiling pattern'
 };
 
-// Чекбоксы эффектов (хранятся в переменных)
-let activeEffects = {};
+const paletteMap = {
+    neutral: 'grey palette, monochromatic lighting, no strong color saturation',
+    warm: 'brown and orange hues, warm ambient light, dusty colors',
+    cool: 'blue and teal hues, cold ambient light, ice tones'
+};
+
+// Обновляет визуальный стиль селекта (серый если "без выбора")
+function updateSelectStyle(selectEl) {
+    if (selectEl.value === '') {
+        selectEl.classList.add('no-selection');
+    } else {
+        selectEl.classList.remove('no-selection');
+    }
+}
+
+// Обновляет счётчик активных параметров
+function updateCounter() {
+    const selects = ['gameStyle', 'surfaceType', 'condition', 'tilingPattern', 'colorPalette'];
+    const activeCount = selects.filter(id => document.getElementById(id).value !== '').length;
+    document.getElementById('activeCount').textContent = activeCount;
+}
+
+// Инициализация при загрузке
+window.onload = function() {
+    const selects = document.querySelectorAll('select');
+    selects.forEach(s => updateSelectStyle(s));
+    updateCounter();
+};
 
 function generatePrompt() {
-    // Собираем данные из полей
     const name = document.getElementById('textureName').value.trim();
     
     if (!name) { 
@@ -365,68 +407,76 @@ function generatePrompt() {
         return; 
     }
 
-    const style = document.getElementById('gameStyle').value;
-    const surface = document.getElementById('surfaceType').value;
-    const condition = document.getElementById('condition').value;
-    const pattern = document.getElementById('tilingPattern').value;
-    const palette = document.getElementById('colorPalette').value;
+    const styleVal   = document.getElementById('gameStyle').value;
+    const surfaceVal = document.getElementById('surfaceType').value;
+    const conditionVal = document.getElementById('condition').value;
+    const patternVal = document.getElementById('tilingPattern').value;
+    const paletteVal = document.getElementById('colorPalette').value;
 
-    const s = styleMap[style];
+    let parts = [];
 
-    // === СОСТАВЛЕНИЕ ПОЗИТИВНОГО ПРОМПТА ===
-    // Строим по структуре: Название + Состояние + Стиль Ключевые слова + Поверхность + Палитра + Детали
-    
-    let basePrompt = `seamless ${pattern} ${name} texture, ${s.keywords_en}, ${conditionMap[condition]}`;
-    
-    // Добавляем палитру и паттерн более подробно
-    basePrompt += `, ${surfaceMap[surface]}, ${paletteMap[palette]}, ${s.quality_add}`;
+    // 1. Базовая структура — паттерн добавляем только если выбран
+    if (patternVal && patternMap[patternVal]) {
+        parts.push(`seamless tileable ${name} texture, ${patternMap[patternVal]}`);
+    } else {
+        parts.push(`seamless tileable ${name} texture`);
+    }
 
-    // Добавляем технические требования (PBR, Flat lighting)
-    basePrompt += `, PBR material diffuse map, albedo map, flat uniform studio lighting, neutral grey illumination, game ready asset, high surface detail, perfectly tiling, no seams`;
+    // 2. Стиль — только если выбран
+    if (styleVal && styleMap[styleVal]) {
+        const s = styleMap[styleVal];
+        parts.push(s.keywords_en);
+        parts.push(s.quality_add);
+        document.getElementById('disp-steps').textContent = s.steps;
+        document.getElementById('disp-cfg').textContent = s.cfg.toFixed(1);
+        document.getElementById('disp-sampler').textContent = s.sampler;
+    } else {
+        // Дефолтные настройки если стиль не выбран
+        document.getElementById('disp-steps').textContent = '4';
+        document.getElementById('disp-cfg').textContent = '1.0';
+        document.getElementById('disp-sampler').textContent = 'euler';
+    }
 
-    // Добавляем эффекты если есть
-    if(activeEffects.bloom) basePrompt += `, cinematic bloom, soft glow`;
-    
-    // Ограничиваем длину, если слишком много
-    const cleanPrompt = basePrompt.replace(/,\s*$/, '');
-    document.getElementById('positive-area').value = cleanPrompt;
+    // 3. Поверхность — только если выбрана
+    if (surfaceVal && surfaceMap[surfaceVal]) {
+        parts.push(surfaceMap[surfaceVal]);
+    }
 
-    // === СОСТАВЛЕНИЕ НЕГАТИВНОГО ПРОМПТА ===
-    // Стандартный набор для текстурных генераций, чтобы избежать проблем с тесселацией и бликами
-    const negative = `shadows, baked lighting, directional highlights, specular glare, gradient background, vignette, blurry, out of focus, jpeg artifacts, watermark, signature, text, logo, border, visible seam, non-tileable edge, asymmetric, perspective distortion, fisheye lens, chromatic aberration, deformed eyes`;
+    // 4. Состояние — только если выбрано
+    if (conditionVal && conditionMap[conditionVal]) {
+        parts.push(conditionMap[conditionVal]);
+    }
 
-    document.getElementById('negative-area').value = negative;
+    // 5. Палитра — только если выбрана
+    if (paletteVal && paletteMap[paletteVal]) {
+        parts.push(paletteMap[paletteVal]);
+    }
 
-    // Обновляем карточки снизу (Steps/CFG)
-    document.getElementById('disp-steps').textContent = s.steps;
-    document.getElementById('disp-cfg').textContent = s.cfg.toFixed(1);
-    document.getElementById('disp-sampler').textContent = s.sampler;
+    // 6. Технические требования — всегда
+    parts.push('PBR material diffuse map, albedo map, flat uniform studio lighting, neutral grey illumination, no shadows, no baked lighting, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams');
+
+    document.getElementById('positive-area').value = parts.join(', ');
+
+    document.getElementById('negative-area').value = 'shadows, baked lighting, directional highlights, specular glare, gradient background, vignette, blurry, out of focus, jpeg artifacts, watermark, signature, text, logo, border, visible seam, non-tileable edge, asymmetric, perspective distortion, fisheye lens, chromatic aberration, deformed eyes';
+
+    showToast("Промпт сгенерирован!");
 }
 
-// Функция добавления/удаления эффектов
-function addEffect(effectName) { activeEffects[effectName] = true; generatePrompt(); }
-function removeEffect(effectName) { delete activeEffects[effectName]; generatePrompt(); }
-
-// Копирование в буфер
 function copyText(elementId) {
     const text = document.getElementById(elementId).value;
     if(!text) return;
-    
     navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById('toast');
-        const msg = document.getElementById('toast-msg');
-        
-        // Анимация появления
-        toast.classList.add('show');
-        msg.innerText = 'Скопировано в буфер!';
-
-        // Скрываем через 2.5 секунды
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 2500);
+        showToast('Скопировано в буфер!');
     });
 }
 
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    const msg = document.getElementById('toast-msg');
+    msg.innerHTML = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
 </script>
 </body>
 </html>
