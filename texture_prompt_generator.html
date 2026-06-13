@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Генератор промптов для текстур</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #1a1a2e; color: #e0e0e0; padding: 20px; min-height: 100vh; }
+  h1 { font-size: 20px; margin-bottom: 20px; color: #a78bfa; text-align: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  label { font-size: 12px; color: #9ca3af; display: block; margin-bottom: 5px; }
+  input, select { width: 100%; padding: 9px 12px; background: #16213e; border: 1px solid #374151; border-radius: 8px; color: #e0e0e0; font-size: 14px; }
+  input:focus, select:focus { outline: none; border-color: #7c3aed; }
+  .btn { width: 100%; padding: 12px; background: #7c3aed; border: none; border-radius: 8px; color: white; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 16px; transition: background 0.2s; }
+  .btn:hover { background: #6d28d9; }
+  .btn-copy { padding: 6px 14px; background: #1f2937; border: 1px solid #374151; border-radius: 6px; color: #9ca3af; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .btn-copy:hover { background: #374151; color: #e0e0e0; }
+  .result-box { background: #16213e; border: 1px solid #374151; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .result-label { font-size: 12px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+  .prompt-text { font-size: 13px; line-height: 1.7; color: #d1d5db; font-family: 'Courier New', monospace; word-break: break-word; }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .setting-card { background: #16213e; border: 1px solid #374151; border-radius: 8px; padding: 10px; text-align: center; }
+  .setting-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; }
+  .setting-value { font-size: 18px; font-weight: 700; color: #a78bfa; }
+  .toast { display: none; position: fixed; bottom: 20px; right: 20px; background: #059669; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; }
+  .positive-label { color: #34d399; }
+  .negative-label { color: #f87171; }
+  #result { display: none; }
+  select option { background: #1a1a2e; }
+</style>
+</head>
+<body>
+
+<h1>🎨 Генератор промптов для текстур</h1>
+
+<div class="grid-2">
+  <div>
+    <label>Название текстуры</label>
+    <input type="text" id="textureName" placeholder="замшелые кирпичи" />
+  </div>
+  <div>
+    <label>Стиль игры</label>
+    <select id="gameStyle">
+      <option value="realistic">Реалистичный</option>
+      <option value="stylized">Стилизованный</option>
+      <option value="lowpoly">Low Poly</option>
+      <option value="scifi">Sci-Fi</option>
+      <option value="fantasy">Фэнтези</option>
+      <option value="horror">Хоррор</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid-3">
+  <div>
+    <label>Тип поверхности</label>
+    <select id="surfaceType">
+      <option value="floor">Пол / Земля</option>
+      <option value="wall" selected>Стена</option>
+      <option value="ceiling">Потолок</option>
+      <option value="organic">Органика</option>
+      <option value="metal">Металл</option>
+      <option value="wood">Дерево</option>
+    </select>
+  </div>
+  <div>
+    <label>Состояние</label>
+    <select id="condition">
+      <option value="new">Новое</option>
+      <option value="used">Потёртое</option>
+      <option value="old" selected>Старое</option>
+      <option value="ruined">Разрушенное</option>
+      <option value="wet">Мокрое</option>
+    </select>
+  </div>
+  <div>
+    <label>Разрешение</label>
+    <select id="resolution">
+      <option value="1K">1K (1024×1024)</option>
+      <option value="2K" selected>2K (2048×2048)</option>
+      <option value="4K">4K (4096×4096)</option>
+    </select>
+  </div>
+</div>
+
+<button class="btn" onclick="generatePrompt()">⚡ Сгенерировать промпт</button>
+
+<div id="result">
+  <div class="result-box">
+    <div class="result-header">
+      <span class="result-label positive-label">✅ Позитивный промпт</span>
+      <button class="btn-copy" onclick="copyText('positive')">📋 Копировать</button>
+    </div>
+    <p class="prompt-text" id="positive"></p>
+  </div>
+
+  <div class="result-box">
+    <div class="result-header">
+      <span class="result-label negative-label">❌ Негативный промпт</span>
+      <button class="btn-copy" onclick="copyText('negative')">📋 Копировать</button>
+    </div>
+    <p class="prompt-text" id="negative"></p>
+  </div>
+
+  <div class="settings-grid">
+    <div class="setting-card">
+      <div class="setting-label">Steps</div>
+      <div class="setting-value" id="steps">4</div>
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">CFG Scale</div>
+      <div class="setting-value" id="cfg">1.0</div>
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">Sampler</div>
+      <div class="setting-value" id="sampler" style="font-size:14px; padding-top:4px;">euler</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Скопировано!</div>
+
+<script>
+const styleMap = {
+  realistic: { en: 'photorealistic, ultra-detailed, physically accurate, photographic quality', quality: 'hyperrealistic, 8K detail', steps: 20, cfg: 7.0, sampler: 'dpmpp_2m' },
+  stylized: { en: 'stylized, hand-painted, artistic, vibrant colors, painterly', quality: 'game art style, expressive', steps: 20, cfg: 7.0, sampler: 'euler' },
+  lowpoly: { en: 'low poly, geometric, simplified, flat colors, minimal detail', quality: 'indie game style, clean', steps: 4, cfg: 1.0, sampler: 'euler' },
+  scifi: { en: 'sci-fi, futuristic, high-tech, industrial, mechanical', quality: 'cyberpunk aesthetic, metallic', steps: 20, cfg: 7.0, sampler: 'dpmpp_2m' },
+  fantasy: { en: 'fantasy, magical, mystical, ornate, enchanted', quality: 'epic fantasy art, rich details', steps: 20, cfg: 7.5, sampler: 'dpmpp_2m' },
+  horror: { en: 'horror, dark, disturbing, decayed, ominous, sinister', quality: 'dark atmosphere, unsettling', steps: 20, cfg: 7.0, sampler: 'dpmpp_2m' }
+};
+
+const surfaceMap = {
+  floor: 'top-down orthographic view, horizontal surface, floor perspective',
+  wall: 'straight-on front view, vertical wall surface, flat angle',
+  ceiling: 'bottom-up view, overhead surface, ceiling perspective',
+  organic: 'natural close-up view, organic surface texture',
+  metal: 'straight-on view, industrial surface, metallic material',
+  wood: 'straight-on view, wood grain visible, natural timber'
+};
+
+const conditionMap = {
+  new: 'pristine condition, clean, perfect, undamaged, brand new',
+  used: 'worn, slightly damaged, used, minor scratches, patina, aged slightly',
+  old: 'heavily aged, weathered, worn, eroded, antique, time-worn, old',
+  ruined: 'heavily damaged, crumbling, deteriorated, decay, ruins, destroyed',
+  wet: 'wet, glistening, rain-soaked, moisture, water droplets, damp'
+};
+
+function generatePrompt() {
+  const name = document.getElementById('textureName').value.trim();
+  if (!name) { alert('Введи название текстуры!'); return; }
+
+  const style = document.getElementById('gameStyle').value;
+  const surface = document.getElementById('surfaceType').value;
+  const condition = document.getElementById('condition').value;
+  const res = document.getElementById('resolution').value;
+
+  const s = styleMap[style];
+
+  const positive = `seamless tileable ${name} texture, ${s.en}, ${conditionMap[condition]}, PBR material diffuse albedo map, flat uniform lighting, no shadows, no baked lighting, no directional light, neutral grey illumination, ${surfaceMap[surface]}, ${s.quality}, ${res} texture resolution, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams`;
+
+  const negative = `shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, out of focus, low quality, jpeg artifacts, watermark, signature, text, logo, border, frame, visible seam, non-tileable edge, asymmetric, perspective distortion, fisheye lens, depth of field, bokeh, chromatic aberration`;
+
+  document.getElementById('positive').textContent = positive;
+  document.getElementById('negative').textContent = negative;
+  document.getElementById('steps').textContent = s.steps;
+  document.getElementById('cfg').textContent = s.cfg.toFixed(1);
+  document.getElementById('sampler').textContent = s.sampler;
+  document.getElementById('result').style.display = 'block';
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 2000);
+  });
+}
+</script>
+</body>
+</html>
