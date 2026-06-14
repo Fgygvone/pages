@@ -18,45 +18,41 @@
         --neg-border: rgba(239, 68, 68, 0.4);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
-    /* Навигация */
-    .top-nav { display: flex; gap: 15px; margin-bottom: 30px; background: var(--bg-card); padding: 8px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
-    .nav-btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--text-secondary); transition: all 0.2s; border: 2px solid transparent; }
+    html, body { overflow-x: hidden; position: relative; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+    #dynamic-bg-container { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background-color: var(--bg-body); }
+    .top-nav, .main-wrapper, .toast { position: relative; z-index: 10; }
+
+    .top-nav { display: flex; gap: 15px; margin-bottom: 30px; background: var(--bg-card); padding: 8px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); width: 100%; max-width: 1200px; justify-content: center; }
+    .nav-btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--text-secondary); transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
     .nav-btn:hover { color: white; background: var(--bg-input); }
     .nav-btn.active { background: rgba(245, 158, 11, 0.15); color: var(--accent-main); border-color: var(--accent-main); }
-    .nav-btn.texture-btn.active { background: rgba(94, 106, 255, 0.15); color: #5e6aff; border-color: #5e6aff; }
+    .nav-btn.texture-btn:hover { color: #5e6aff; background: rgba(94, 106, 255, 0.1); border-color: transparent; }
 
     .main-wrapper { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
     .settings-card { background-color: var(--bg-card); padding: 30px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
     .header-title { font-size: 18px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #333; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
     .header-title span { color: var(--accent-main); }
-    
-    /* Бейдж для Flux */
     .flux-badge { font-size: 10px; background: rgba(192, 132, 252, 0.2); color: #e879f9; padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(192, 132, 252, 0.4); }
-
     .input-wrapper { display: flex; flex-direction: column; gap: 8px; position: relative; }
     label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; }
-    
     .desc-area { width: 100%; height: 120px; padding: 14px; background-color: var(--bg-input); border: 2px solid transparent; border-radius: 10px; color: white; font-size: 14px; resize: none; transition: all 0.2s; font-family: inherit; line-height: 1.5; }
     .desc-area:focus { border-color: var(--accent-main); background-color: #2a3040; box-shadow: 0 0 0 4px rgba(245,158,11,0.15); }
-    
     .btn-translate { height: 32px; padding: 0 12px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 6px; color: var(--accent-main); font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-translate:hover { background: rgba(245,158,11,0.3); color: white; }
     .btn-translate.loading { opacity: 0.6; cursor: wait; }
-    
     .translate-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; display: none; }
     .translate-status.success { background: rgba(16,185,129,0.15); color: #34d399; display: block; }
     .translate-status.error { background: rgba(239,68,68,0.15); color: #f87171; display: block; }
     .translate-status.loading { background: rgba(245,158,11,0.15); color: var(--accent-main); display: block; }
-
     input, select { width: 100%; height: 48px; padding: 0 14px; background-color: var(--bg-input); border: 2px solid transparent; border-radius: 10px; color: white; font-size: 14px; transition: all 0.2s ease; cursor: pointer; }
     input:focus, select:focus { border-color: var(--accent-main); background-color: #2a3040; }
     select option[value=""] { color: #6b7280; font-style: italic; }
-    
     .btn-generate { width: 100%; height: 56px; background: linear-gradient(90deg, #ea580c, var(--accent-main)); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: auto; transition: transform 0.2s, box-shadow 0.2s; }
     .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245,158,11,0.3); }
-    
     .result-card { display: flex; flex-direction: column; gap: 20px; }
     .prompt-block { background: var(--bg-card); border-radius: 16px; padding: 24px; position: relative; display: flex; flex-direction: column; height: 380px; }
     .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -64,31 +60,27 @@
     .badge { padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
     .badge-pos { background: var(--pos-bg); border: 1px solid var(--pos-border); color: #a7f3d0; }
     .badge-neg { background: var(--neg-bg); border: 1px solid var(--neg-border); color: #fecaca; }
-    
     textarea.output-area { width: 100%; height: 100%; background: transparent; border: none; resize: none; color: #d1d5db; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.6; overflow-y: auto; }
     textarea::-webkit-scrollbar { width: 8px; }
     textarea::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-    
     .btn-copy-small { background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
     .btn-copy-small:hover { background: rgba(255,255,255,0.1); color: white; }
-    
     .settings-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 16px 20px; border-radius: 12px; background: rgba(0,0,0,0.2); margin-top: auto; }
     .setting-item { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
     .s-label { font-size: 10px; color: #6b7280; text-transform: uppercase; }
     .s-value { font-family: 'Consolas', monospace; font-weight: 700; font-size: 13px; }
-    
     .toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; border-left: 5px solid var(--accent-main); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: translateY(120%); transition: transform 0.3s; z-index: 100; }
     .toast.show { transform: translateY(0); }
-    
     @media (max-width: 768px) { .main-wrapper { grid-template-columns: 1fr; } .settings-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
 
-<!-- Навигация -->
+<div id="dynamic-bg-container"></div>
+
 <div class="top-nav">
-    <a href="texture_prompt_generator.html" class="nav-btn texture-btn">🧱 Текстуры</a>
-    <a href="Concept.html" class="nav-btn active">🖼️ Локации (Концепты)</a>
+    <a href="texture_prompt_generator.html" onclick="return navigateTo('texture_prompt_generator.html', 'right')" class="nav-btn texture-btn">🧱 Текстуры</a>
+    <a href="Concept.html" onclick="return navigateTo('Concept.html', 'none')" class="nav-btn active">🖼️ Локации (Концепты)</a>
 </div>
 
 <div class="main-wrapper">
@@ -101,21 +93,21 @@
         <div class="input-wrapper">
             <label>
                 Подробное описание локации
-                <button class="btn-translate" id="translateBtn" onclick="translateDesc()" title="Перевести на английский (Google Translate)">🌐 EN</button>
+                <button class="btn-translate" id="translateBtn" onclick="translateDesc()" title="Перевести (Google)">🌐 EN</button>
             </label>
-            <textarea id="conceptDesc" class="desc-area" placeholder="интерьер разрушенных древних руин, пробитый каменный потолок, одинокое зеленое растение растет под лучами света..." oninput="checkLang()"></textarea>
+            <textarea id="conceptDesc" class="desc-area" placeholder="интерьер разрушенных древних руин, пробитый каменный потолок..." oninput="checkLang()"></textarea>
             <div class="translate-status" id="translateStatus"></div>
         </div>
 
         <div class="input-wrapper">
-            <label>Стиль / Жанр игры</label>
+            <label>Стиль / Жанр игры (Обязательно)</label>
             <select id="gameStyle">
                 <option value="dark_fantasy">Dark Fantasy (Мрачное фэнтези)</option>
                 <option value="fantasy">High Fantasy (Эпическое фэнтези)</option>
-                <option value="scifi">Sci-Fi (Научная фантастика / Киберпанк)</option>
-                <option value="horror">Horror (Хоррор / Выживание)</option>
+                <option value="scifi">Sci-Fi (Киберпанк)</option>
+                <option value="horror">Horror (Хоррор)</option>
                 <option value="post_apoc">Post-apocalyptic (Постапокалипсис)</option>
-                <option value="realistic">Realistic (Современность / Реализм)</option>
+                <option value="realistic">Realistic (Современность)</option>
             </select>
         </div>
 
@@ -136,7 +128,7 @@
             <select id="lighting">
                 <option value="dramatic lighting">Драматичное освещение</option>
                 <option value="volumetric fog, god rays">Объемный туман, лучи бога (God rays)</option>
-                <option value="cinematic low-key lighting">Кинематографичный низкий ключ (Темно)</option>
+                <option value="cinematic low-key lighting">Кинематографичный низкий ключ</option>
                 <option value="neon lights, high contrast">Неоновый свет, высокий контраст</option>
                 <option value="bioluminescent glow">Биолюминесцентное свечение</option>
                 <option value="moonlight illumination">Освещение от луны</option>
@@ -146,10 +138,10 @@
         <div class="input-wrapper">
             <label>Ракурс / Перспектива</label>
             <select id="perspective">
-                <option value="wide establishing shot">Широкий общий план (Establishing shot)</option>
+                <option value="wide establishing shot">Широкий общий план</option>
                 <option value="dramatic low angle perspective">Снизу вверх (Low angle)</option>
-                <option value="bird eye view">С высоты птичьего полета (Bird eye view)</option>
-                <option value="close-up intimate perspective">Близкий ракурс (Close-up)</option>
+                <option value="bird eye view">С высоты птичьего полета</option>
+                <option value="close-up intimate perspective">Близкий ракурс</option>
                 <option value="isometric perspective">Изометрический вид</option>
             </select>
         </div>
@@ -166,7 +158,7 @@
             <textarea id="positive-area" class="output-area" readonly></textarea>
             
             <div class="settings-grid">
-                <div class="setting-item"><span class="s-label">Steps</span><span class="s-value" style="color:#fff;" title="Для Flux Dev нужно 20-25 шагов">20</span></div>
+                <div class="setting-item"><span class="s-label">Steps</span><span class="s-value" style="color:#fff;">20</span></div>
                 <div class="setting-item"><span class="s-label">CFG</span><span class="s-value" style="color:#fbbf24;">1.0</span></div>
                 <div class="setting-item"><span class="s-label">Guidance</span><span class="s-value" style="color:#e879f9;">3.5</span></div>
                 <div class="setting-item"><span class="s-label">Sampler</span><span class="s-value" style="color:#3b82f6;">euler</span></div>
@@ -176,7 +168,7 @@
         
         <div class="prompt-block" style="border-top: 4px solid var(--neg-border); background: rgba(0,0,0,0.2); height: 200px;">
             <div class="block-header">
-                <div class="label-row"><span class="badge badge-neg">Negative Prompt</span> <span style="font-size:10px; color:#6b7280;">(Flux может игнорировать)</span></div>
+                <div class="label-row"><span class="badge badge-neg">Negative Prompt</span> <span style="font-size:10px; color:#6b7280;">(Flux игнорирует)</span></div>
                 <button class="btn-copy-small" onclick="copyText('negative-area')">📋 Копировать</button>
             </div>
             <textarea id="negative-area" class="output-area" readonly style="color:#7f1d1d;">blurry, low quality, watermark, text, logo, ugly, deformed, bad anatomy, worst quality, jpeg artifacts, oversaturated, flat lighting, boring composition, amateur, sketch, draft</textarea>
@@ -187,7 +179,9 @@
 <div class="toast" id="toast"><span id="toast-msg">✅ Готово!</span></div>
 
 <script>
-// Специфичные ключевые слова
+/* =========================================================
+   ГЕНЕРАТОР ПРОМПТОВ ДЛЯ КОНЦЕПТОВ (ПОЛНОСТЬЮ ВОССТАНОВЛЕН)
+   ========================================================= */
 const styleModifiers = {
     dark_fantasy: "dark fantasy style, gothic, gritty",
     fantasy: "high fantasy style, epic, mystical, ethereal, enchanted",
@@ -197,109 +191,119 @@ const styleModifiers = {
     realistic: "hyper-realistic contemporary style, modern, mundane yet cinematic"
 };
 
-// Константы качества
 const qualityTags = "highly detailed, cinematic composition, dramatic perspective, 4K, by Greg Rutkowski, ArtStation trending, Unreal Engine 5 style, widescreen 16:9, game environment art";
 
-function hasCyrillic(text) {
-    return /[а-яёА-ЯЁ]/.test(text);
-}
+function hasCyrillic(t) { return /[а-яёА-ЯЁ]/.test(t); }
+function checkLang() { const b = document.getElementById('translateBtn'); const t = document.getElementById('conceptDesc').value; b.style.color = hasCyrillic(t) ? '#f59e0b' : 'var(--accent-main)'; b.style.borderColor = hasCyrillic(t) ? '#f59e0b' : 'rgba(245,158,11,0.3)'; }
 
-function checkLang() {
-    const text = document.getElementById('conceptDesc').value;
-    const btn = document.getElementById('translateBtn');
-    if (hasCyrillic(text)) {
-        btn.style.borderColor = '#f59e0b';
-        btn.style.color = '#f59e0b';
-    } else {
-        btn.style.borderColor = 'rgba(245,158,11,0.3)';
-        btn.style.color = 'var(--accent-main)';
-    }
-}
-
-// ПЕРЕВОДЧИК ЧЕРЕЗ БЕСПЛАТНЫЙ GOOGLE TRANSLATE API (без ключей)
 async function translateDesc() {
-    const text = document.getElementById('conceptDesc').value.trim();
-    if (!text) return;
-    if (!hasCyrillic(text)) { showStatus('Текст уже на английском!', 'success'); return; }
-
-    const btn = document.getElementById('translateBtn');
-    btn.classList.add('loading');
-    btn.textContent = '⏳';
-    showStatus('Переводим...', 'loading');
-
+    const t = document.getElementById('conceptDesc').value.trim(); if (!t) return; if (!hasCyrillic(t)) { showStatus('Уже на английском!', 'success'); return; }
+    const btn = document.getElementById('translateBtn'); btn.classList.add('loading'); btn.textContent = '⏳'; showStatus('Переводим...', 'loading');
     try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        // Сборка перевода из массива Google
-        const translated = data[0].map(item => item[0]).join(' ');
-        
-        document.getElementById('conceptDesc').value = translated;
-        showStatus('✅ Успешно переведено', 'success');
-        checkLang();
-    } catch (err) {
-        showStatus('❌ Ошибка сети — введи вручную', 'error');
-        console.error("Ошибка перевода:", err);
-    } finally {
-        btn.classList.remove('loading');
-        btn.innerHTML = '🌐 EN';
-    }
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(t)}`);
+        const data = await res.json();
+        const translated = data[0].map(i=>i[0]).join(' ');
+        document.getElementById('conceptDesc').value = translated; showStatus('✅ Переведено', 'success'); checkLang();
+    } catch (e) { showStatus('❌ Ошибка сети', 'error'); } finally { btn.classList.remove('loading'); btn.innerHTML = '🌐 EN'; }
 }
 
-function showStatus(msg, type) {
-    const el = document.getElementById('translateStatus');
-    el.textContent = msg;
-    el.className = 'translate-status ' + type;
-    if (type === 'success') setTimeout(() => { el.className = 'translate-status'; }, 4000);
-}
+function showStatus(msg, type) { const el = document.getElementById('translateStatus'); el.textContent = msg; el.className = 'translate-status ' + type; if (type === 'success') setTimeout(() => el.className = 'translate-status', 4000); }
 
 function generatePrompt() {
     const desc = document.getElementById('conceptDesc').value.trim();
-    if (!desc) { alert('Пожалуйста, введи описание локации!'); return; }
-
-    if (hasCyrillic(desc)) {
-        showToast('⚠️ Описание на русском — нажми 🌐 EN для перевода!');
-        document.getElementById('conceptDesc').style.borderColor = '#f59e0b';
-        setTimeout(() => { document.getElementById('conceptDesc').style.borderColor = ''; }, 3000);
-        return;
-    }
+    if (!desc) return alert('Пожалуйста, введи описание локации!');
+    if (hasCyrillic(desc)) { showToast('⚠️ Описание на русском — переведи!'); return; }
 
     const styleVal = document.getElementById('gameStyle').value;
     const moodVal = document.getElementById('mood').value;
     const lightVal = document.getElementById('lighting').value;
     const perspVal = document.getElementById('perspective').value;
 
-    const promptParts = [
-        "concept art",
-        desc,
-        moodVal + " atmosphere",
-        lightVal,
-        perspVal,
-        styleModifiers[styleVal],
-        qualityTags
-    ];
-
-    const finalPrompt = promptParts.filter(Boolean).join(', ').replace(/\s+/g, ' ');
-
-    document.getElementById('positive-area').value = finalPrompt;
+    const parts = ["concept art", desc, moodVal + " atmosphere", lightVal, perspVal, styleModifiers[styleVal], qualityTags];
+    document.getElementById('positive-area').value = parts.filter(Boolean).join(', ').replace(/\s+/g, ' ');
     document.getElementById('negative-area').value = "blurry, low quality, watermark, text, logo, ugly, deformed, bad anatomy, worst quality, jpeg artifacts, oversaturated, flat lighting, boring composition, amateur, sketch, draft";
-
-    showToast('✅ Промпт для Flux готов!');
+    showToast('✅ Промпт готов!');
 }
 
-function copyText(id) {
-    const text = document.getElementById(id).value;
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано!'));
-}
+function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => showToast('📋 Скопировано!')); }
+function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
+/* =========================================================
+   НАВИГАЦИЯ, СВАЙПЫ И ФОН
+   ========================================================= */
+const CURRENT_PAGE = 'Concept.html';
+const OTHER_PAGE = 'texture_prompt_generator.html';
+
+window.navigateTo = function(url, direction = 'right') {
+    if (!url || url === CURRENT_PAGE || direction === 'none') return false;
+    document.body.style.transition = 'transform 0.32s ease, opacity 0.32s ease';
+    document.body.style.opacity = '0';
+    document.body.style.transform = direction === 'left' ? 'translateX(-80px)' : (direction === 'right' ? 'translateX(80px)' : 'translateY(20px)');
+    setTimeout(() => window.location.href = url, 320); return false;
+};
+
+(function initSwipeNavigation() {
+    let startX = 0, currentX = 0, startY = 0, isDragging = false, isHorizontalSwipe = false;
+    const ignoreTags = ['input', 'textarea', 'select', 'button', 'a', 'option', 'label'];
+    function getPoint(e) { return e.touches && e.touches[0] ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY }; }
+    function shouldIgnore(t) { const tag = t.tagName ? t.tagName.toLowerCase() : ''; return ignoreTags.includes(tag) || (t.closest && (t.closest('.top-nav') || t.closest('.settings-card') || t.closest('.prompt-block'))); }
+
+    function startDrag(e) { if (shouldIgnore(e.target)) return; const p = getPoint(e); startX = currentX = p.x; startY = p.y; isDragging = true; isHorizontalSwipe = false; document.body.style.transition = 'none'; }
+    function drag(e) {
+        if (!isDragging) return; const p = getPoint(e); currentX = p.x; const deltaX = currentX - startX, deltaY = p.y - startY;
+        if (!isHorizontalSwipe) { if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) isHorizontalSwipe = true; else return; }
+        if (e.cancelable) e.preventDefault(); document.body.style.transform = `translateX(${Math.max(-180, Math.min(180, deltaX))}px)`;
+    }
+    function endDrag() {
+        if (!isDragging) return; isDragging = false; const deltaX = currentX - startX; document.body.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
+        if (Math.abs(deltaX) > 120 && isHorizontalSwipe) {
+            document.body.style.opacity = '0'; document.body.style.transform = deltaX < 0 ? 'translateX(-100vw)' : 'translateX(100vw)';
+            setTimeout(() => window.location.href = OTHER_PAGE, 280);
+        } else { document.body.style.transform = 'translateX(0)'; document.body.style.opacity = '1'; }
+    }
+    document.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', drag); document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchstart', startDrag, { passive: true }); document.addEventListener('touchmove', drag, { passive: false }); document.addEventListener('touchend', endDrag);
+})();
+
+(function initRandomBackground() {
+    const container = document.getElementById('dynamic-bg-container'); if (!container) return;
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-main').trim();
+    function hexToRgb(hex) { let c = hex.replace('#', '').trim(); if (c.length === 3) c = c.split('').map(x => x + x).join(''); return { r: parseInt(c.substring(0, 2), 16), g: parseInt(c.substring(2, 4), 16), b: parseInt(c.substring(4, 6), 16) }; }
+    const rgb = hexToRgb(accentColor); const rgbAccent = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+    const bgType = Math.floor(Math.random() * 3);
+
+    if (bgType === 0) {
+        container.innerHTML = `<div class="latent-blob latent-blob-a"></div><div class="latent-blob latent-blob-b"></div><div class="latent-blob latent-blob-c"></div>`;
+        const style = document.createElement('style');
+        style.innerHTML = `.latent-blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.16;animation:latentFloat 22s infinite alternate ease-in-out;will-change:transform;}.latent-blob-a{width:60vw;height:60vw;background:${accentColor};top:-18%;left:-12%;}.latent-blob-b{width:52vw;height:52vw;background:rgba(${rgbAccent}, 0.8);right:-14%;bottom:-18%;animation-delay:-7s;animation-duration:28s;}.latent-blob-c{width:40vw;height:40vw;background:rgba(255,255,255,0.45);left:35%;top:35%;opacity:0.045;animation-delay:-12s;animation-duration:32s;}@keyframes latentFloat{0%{transform:translate3d(0,0,0) scale(1) rotate(0deg);}100%{transform:translate3d(10vw,8vh,0) scale(1.22) rotate(18deg);}}`;
+        document.head.appendChild(style);
+    } else if (bgType === 1) {
+        const canvas = document.createElement('canvas'); container.appendChild(canvas); const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; particles = []; const count = Math.min(120, Math.floor((width * height) / 18000)); for (let i = 0; i < count; i++) particles.push(new DustParticle()); }
+        class DustParticle {
+            constructor() { this.reset(true); }
+            reset(randomY = false) { this.x = Math.random() * width; this.y = randomY ? Math.random() * height : height + Math.random() * 80; this.radius = Math.random() * 2.2 + 0.4; this.speedY = -(Math.random() * 0.32 + 0.08); this.speedX = (Math.random() - 0.5) * 0.22; this.alpha = Math.random() * 0.35 + 0.05; this.alphaSpeed = (Math.random() - 0.5) * 0.008; }
+            update() { this.x += this.speedX; this.y += this.speedY; this.alpha += this.alphaSpeed; if (this.alpha <= 0.03 || this.alpha >= 0.45) this.alphaSpeed *= -1; if (this.y < -20 || this.x < -20 || this.x > width + 20) this.reset(false); }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = `rgba(${rgbAccent}, ${this.alpha})`; ctx.shadowBlur = 12; ctx.shadowColor = `rgba(${rgbAccent}, ${this.alpha})`; ctx.fill(); ctx.shadowBlur = 0; }
+        }
+        window.addEventListener('resize', resize); resize();
+        function animate() { ctx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); } animate();
+    } else {
+        const canvas = document.createElement('canvas'); container.appendChild(canvas); const ctx = canvas.getContext('2d');
+        let width, height, columns, drops = [], fontSize = 15; const symbols = ['0', '1', '/', '\\', '|', '<', '>', '{', '}', '#', '+'];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; columns = Math.floor(width / fontSize); drops = []; for (let i = 0; i < columns; i++) drops[i] = Math.random() * -height; }
+        window.addEventListener('resize', resize); resize();
+        function draw() {
+            ctx.fillStyle = 'rgba(15, 18, 25, 0.13)'; ctx.fillRect(0, 0, width, height); ctx.font = `${fontSize}px Consolas, monospace`;
+            for (let i = 0; i < drops.length; i++) {
+                const text = symbols[Math.floor(Math.random() * symbols.length)]; const x = i * fontSize; const y = drops[i] * fontSize;
+                ctx.fillStyle = `rgba(${rgbAccent}, 0.34)`; ctx.fillText(text, x, y);
+                if (y > height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
+            } requestAnimationFrame(draw);
+        } draw();
+    }
+})();
 </script>
 </body>
 </html>
