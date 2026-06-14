@@ -25,36 +25,27 @@
     .header-title span { color: var(--accent-main); }
     .input-wrapper { display: flex; flex-direction: column; gap: 8px; position: relative; }
     label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); }
-
-    /* Поле имени с кнопкой перевода */
     .name-input-row { display: flex; gap: 8px; align-items: stretch; }
     .name-input-row input { flex: 1; }
     .btn-translate { height: 48px; padding: 0 14px; background: rgba(94,106,255,0.15); border: 2px solid rgba(94,106,255,0.3); border-radius: 10px; color: #a5b4fc; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
     .btn-translate:hover { background: rgba(94,106,255,0.3); border-color: var(--accent-main); color: white; }
     .btn-translate.loading { opacity: 0.6; cursor: wait; }
-
-    /* Статус перевода */
     .translate-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; display: none; }
     .translate-status.success { background: rgba(16,185,129,0.15); color: #34d399; display: block; }
     .translate-status.error { background: rgba(239,68,68,0.15); color: #f87171; display: block; }
     .translate-status.loading { background: rgba(94,106,255,0.15); color: #a5b4fc; display: block; }
-
     input, select { width: 100%; height: 48px; padding: 0 14px; background-color: var(--bg-input); border: 2px solid transparent; border-radius: 10px; color: white; font-size: 15px; transition: all 0.2s ease; }
     input:focus, select:focus { border-color: var(--accent-main); background-color: #2a3040; box-shadow: 0 0 0 4px rgba(94,106,255,0.15); }
     select option[value=""] { color: #6b7280; font-style: italic; }
     select.no-selection { color: #6b7280; border-color: rgba(107,114,128,0.3); }
-
-    /* Ракурс — новый параметр */
     .view-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .view-btn { height: 42px; background: var(--bg-input); border: 2px solid transparent; border-radius: 10px; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .view-btn:hover { border-color: rgba(94,106,255,0.4); color: white; }
     .view-btn.active { background: rgba(94,106,255,0.15); border-color: var(--accent-main); color: #a5b4fc; }
-
     .btn-generate { width: 100%; height: 56px; background: linear-gradient(90deg, var(--accent-main), #7b8aff); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: auto; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(94,106,255,0.3); }
     .params-counter { font-size: 11px; color: var(--text-secondary); text-align: center; padding: 6px; background: rgba(94,106,255,0.08); border-radius: 6px; border: 1px solid rgba(94,106,255,0.15); }
     .params-counter span { color: var(--accent-main); font-weight: 700; }
-
     .result-card { display: flex; flex-direction: column; gap: 20px; }
     .prompt-block { background: var(--bg-card); border-radius: 16px; padding: 24px; position: relative; display: flex; flex-direction: column; height: 380px; }
     .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -82,19 +73,15 @@
     <div class="settings-card">
         <div class="header-title">Параметры <span>Текстуры</span></div>
 
-        <!-- Название + кнопка перевода -->
         <div class="input-wrapper">
             <label>Название текстуры (Required)</label>
             <div class="name-input-row">
                 <input type="text" id="textureName" placeholder="замшелые кирпичи / mossy bricks..." autocomplete="off" oninput="checkLang()">
-                <button class="btn-translate" id="translateBtn" onclick="translateName()" title="Перевести на английский">
-                    🌐 EN
-                </button>
+                <button class="btn-translate" id="translateBtn" onclick="translateName()" title="Перевести на английский">🌐 EN</button>
             </div>
             <div class="translate-status" id="translateStatus"></div>
         </div>
 
-        <!-- Ракурс — НОВЫЙ ПАРАМЕТР -->
         <div class="input-wrapper">
             <label>📐 Ракурс камеры (View Angle)</label>
             <div class="view-selector">
@@ -143,6 +130,21 @@
         </div>
 
         <div class="input-wrapper">
+            <label>Тип укладки / Структура (Optional)</label>
+            <select id="tilingPattern" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
+                <option value="solid">Сплошной / Однородный (Solid)</option>
+                <option value="tile">Плитка квадратная (Square tiles)</option>
+                <option value="brick">Кирпичная укладка (Brick bond)</option>
+                <option value="hexagon">Шестиугольники (Hexagon tiles)</option>
+                <option value="cobble">Булыжник (Cobblestone)</option>
+                <option value="plank">Доски / Планки (Planks)</option>
+                <option value="grid">Сетка (Grid)</option>
+                <option value="random">Хаотичный (Random/Natural)</option>
+            </select>
+        </div>
+
+        <div class="input-wrapper">
             <label>Цветовая гамма (Optional)</label>
             <select id="colorPalette" onchange="updateSelectStyle(this); updateCounter()">
                 <option value="">— Без выбора —</option>
@@ -152,8 +154,7 @@
             </select>
         </div>
 
-        <div class="params-counter">Активных параметров: <span id="activeCount">0</span> из 4</div>
-
+        <div class="params-counter">Активных параметров: <span id="activeCount">0</span> из 5</div>
         <button class="btn-generate" onclick="generatePrompt()">⚡ Сгенерировать промпт</button>
     </div>
 
@@ -180,29 +181,16 @@
     </div>
 </div>
 
-<div class="toast" id="toast"><span id="toast-msg">✅ Скопировано!</span></div>
+<div class="toast" id="toast"><span id="toast-msg">✅ Готово!</span></div>
 
 <script>
-// Выбранный ракурс
 let selectedView = 'top';
 
 const viewMap = {
-    top: {
-        positive: 'perfectly flat top-down orthographic view, camera directly above surface looking straight down, 90 degree bird-eye angle, zero perspective distortion, completely horizontal flat surface',
-        negative: 'side view, angled view, perspective shot, 3D perspective, oblique angle, tilted camera, diagonal view, isometric, diagonal perspective, 3/4 view, vanishing point'
-    },
-    front: {
-        positive: 'straight-on front view, camera perpendicular to surface, flat frontal angle, zero perspective, wall texture perspective',
-        negative: 'top-down view, angled view, bird eye view, tilted, diagonal, 3/4 angle, side angle, perspective distortion'
-    },
-    close: {
-        positive: 'extreme macro close-up photography, 100mm macro lens, surface detail magnification, micro texture visible, flat field depth',
-        negative: 'wide angle, distant shot, perspective, side view, angled, full scene, landscape'
-    },
-    angle: {
-        positive: 'slight 3/4 angled view, mild perspective showing surface depth, subtle angle revealing texture volume',
-        negative: 'perfectly flat top-down, straight front view, extreme angle, fish-eye, distorted perspective'
-    }
+    top:   { positive: 'perfectly flat top-down orthographic view, camera directly above surface looking straight down, 90 degree bird-eye angle, zero perspective distortion, completely horizontal flat surface', negative: 'side view, angled view, perspective shot, 3D perspective, oblique angle, tilted camera, diagonal view, isometric, 3/4 view, vanishing point' },
+    front: { positive: 'straight-on front view, camera perpendicular to surface, flat frontal angle, zero perspective, wall texture perspective', negative: 'top-down view, angled view, bird eye view, tilted, diagonal, 3/4 angle, side angle, perspective distortion' },
+    close: { positive: 'extreme macro close-up photography, 100mm macro lens, surface detail magnification, micro texture visible, flat field depth', negative: 'wide angle, distant shot, perspective, side view, angled, full scene, landscape' },
+    angle: { positive: 'slight 3/4 angled view, mild perspective showing surface depth, subtle angle revealing texture volume', negative: 'perfectly flat top-down, straight front view, extreme angle, fish-eye, distorted perspective' }
 };
 
 function setView(view) {
@@ -211,39 +199,48 @@ function setView(view) {
     document.getElementById('view-' + view).classList.add('active');
 }
 
-// Автоперевод
 const styleMap = {
     realistic: { keywords_en: 'photorealistic, ultra-detailed, physically accurate, raytracing', quality_add: 'hyperrealistic, 8K detail, film grain', steps: 20, cfg: 7.5, sampler: 'dpmpp_2m' },
-    stylized: { keywords_en: 'stylized, hand-painted, artistic, vibrant colors, expressive', quality_add: 'game art style, painterly, vivid saturation', steps: 25, cfg: 7.0, sampler: 'euler_a' },
-    lowpoly: { keywords_en: 'low poly, geometric, flat shading, minimal detail', quality_add: 'indie game style, clean topology', steps: 4, cfg: 1.0, sampler: 'euler' },
-    scifi: { keywords_en: 'sci-fi, futuristic, high-tech, industrial, mechanical', quality_add: 'cyberpunk aesthetic, metallic, neon', steps: 25, cfg: 7.0, sampler: 'dpmpp_2m' },
-    fantasy: { keywords_en: 'fantasy, magical, mystical, ornate, enchanted', quality_add: 'epic fantasy art, rich detail, glowing', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' },
-    horror: { keywords_en: 'horror, dark, disturbing, decayed, ominous, sinister', quality_add: 'dark atmosphere, unsettling, gritty', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' }
+    stylized:  { keywords_en: 'stylized, hand-painted, artistic, vibrant colors, expressive', quality_add: 'game art style, painterly, vivid saturation', steps: 25, cfg: 7.0, sampler: 'euler_a' },
+    lowpoly:   { keywords_en: 'low poly, geometric, flat shading, minimal detail', quality_add: 'indie game style, clean topology', steps: 4, cfg: 1.0, sampler: 'euler' },
+    scifi:     { keywords_en: 'sci-fi, futuristic, high-tech, industrial, mechanical', quality_add: 'cyberpunk aesthetic, metallic, neon', steps: 25, cfg: 7.0, sampler: 'dpmpp_2m' },
+    fantasy:   { keywords_en: 'fantasy, magical, mystical, ornate, enchanted', quality_add: 'epic fantasy art, rich detail, glowing', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' },
+    horror:    { keywords_en: 'horror, dark, disturbing, decayed, ominous, sinister', quality_add: 'dark atmosphere, unsettling, gritty', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' }
+};
+
+const patternMap = {
+    solid:   { pos: 'uniform solid surface, no tile pattern, seamless continuous material, no joints, no grout lines', neg: 'tiles, bricks, grout lines, joints, tile pattern, grid, hexagons, cobblestone, planks' },
+    tile:    { pos: 'square tile pattern, uniform tile grid, clean grout lines, regular geometric tiles', neg: 'solid surface, random pattern, cobblestone, brick bond, hexagon' },
+    brick:   { pos: 'brick bond pattern, offset rows, mortar joints, staggered brick layout', neg: 'solid surface, square tiles, random, hexagon, cobblestone' },
+    hexagon: { pos: 'hexagonal tile pattern, honeycomb layout, six-sided tiles, geometric hexagon grid', neg: 'solid surface, square tiles, brick pattern, random, cobblestone' },
+    cobble:  { pos: 'cobblestone pattern, irregular rounded stones, natural stone paving, varied stone sizes', neg: 'solid surface, regular tiles, grid pattern, hexagon, brick' },
+    plank:   { pos: 'plank pattern, parallel board layout, linear strips arrangement', neg: 'solid surface, tiles, hexagon, cobblestone, grid' },
+    grid:    { pos: 'grid pattern, rectangular grid layout, evenly spaced lines, regular grid divisions', neg: 'solid surface, random pattern, cobblestone, hexagon' },
+    random:  { pos: 'natural random pattern, organic irregular surface, no repeating pattern, chaotic natural layout', neg: 'regular tiles, grid, geometric pattern, uniform layout, brick bond' }
 };
 
 const conditionMap = {
-    new: 'pristine, perfectly clean, undamaged, factory fresh',
-    used: 'worn, slightly weathered, minor scratches, soft patina',
-    old: 'heavily aged, weathered, eroded, antique',
+    new:    'pristine, perfectly clean, undamaged, factory fresh',
+    used:   'worn, slightly weathered, minor scratches, soft patina',
+    old:    'heavily aged, weathered, eroded, antique',
     ruined: 'severely damaged, crumbling, decay, destruction'
 };
 
 const paletteMap = {
     neutral: 'grey palette, monochromatic, no strong saturation',
-    warm: 'warm earth tones, brown and orange hues',
-    cool: 'cool blue tones, cold ambient'
+    warm:    'warm earth tones, brown and orange hues',
+    cool:    'cool blue tones, cold ambient'
 };
 
 const surfaceMap = {
-    floor: 'ground surface material',
-    wall: 'vertical wall surface material',
+    floor:   'ground surface material',
+    wall:    'vertical wall surface material',
     ceiling: 'overhead ceiling surface',
     organic: 'natural organic surface',
-    metal: 'metallic industrial surface',
-    wood: 'wood grain surface material'
+    metal:   'metallic industrial surface',
+    wood:    'wood grain surface material'
 };
 
-// Проверяем наличие кириллицы
 function hasCyrillic(text) {
     return /[а-яёА-ЯЁ]/.test(text);
 }
@@ -254,21 +251,16 @@ function checkLang() {
     if (hasCyrillic(name)) {
         btn.style.borderColor = '#f59e0b';
         btn.style.color = '#fbbf24';
-        btn.title = 'Обнаружен русский текст — нажми для перевода!';
     } else {
         btn.style.borderColor = 'rgba(94,106,255,0.3)';
         btn.style.color = '#a5b4fc';
-        btn.title = 'Перевести на английский';
     }
 }
 
 async function translateName() {
     const name = document.getElementById('textureName').value.trim();
     if (!name) return;
-    if (!hasCyrillic(name)) {
-        showStatus('Текст уже на английском!', 'success');
-        return;
-    }
+    if (!hasCyrillic(name)) { showStatus('Текст уже на английском!', 'success'); return; }
 
     const btn = document.getElementById('translateBtn');
     btn.classList.add('loading');
@@ -282,21 +274,16 @@ async function translateName() {
             body: JSON.stringify({
                 model: 'claude-sonnet-4-6',
                 max_tokens: 100,
-                messages: [{
-                    role: 'user',
-                    content: `Translate this texture name from Russian to English for use in AI image generation prompts. Return ONLY the translated text, nothing else, no explanation: "${name}"`
-                }]
+                messages: [{ role: 'user', content: 'Translate this texture name from Russian to English for AI image generation. Return ONLY the translated text, no explanation: "' + name + '"' }]
             })
         });
-
         const data = await response.json();
         const translated = data.content[0].text.trim().replace(/['"]/g, '');
-
         document.getElementById('textureName').value = translated;
-        showStatus(`✅ Переведено: "${translated}"`, 'success');
+        showStatus('✅ Переведено: "' + translated + '"', 'success');
         checkLang();
     } catch (err) {
-        showStatus('❌ Ошибка перевода — введи название вручную', 'error');
+        showStatus('❌ Ошибка — введи название вручную', 'error');
     } finally {
         btn.classList.remove('loading');
         btn.innerHTML = '🌐 EN';
@@ -307,19 +294,16 @@ function showStatus(msg, type) {
     const el = document.getElementById('translateStatus');
     el.textContent = msg;
     el.className = 'translate-status ' + type;
-    if (type === 'success') {
-        setTimeout(() => el.className = 'translate-status', 4000);
-    }
+    if (type === 'success') setTimeout(() => { el.className = 'translate-status'; }, 4000);
 }
 
-function updateSelectStyle(selectEl) {
-    selectEl.classList.toggle('no-selection', selectEl.value === '');
+function updateSelectStyle(el) {
+    el.classList.toggle('no-selection', el.value === '');
 }
 
 function updateCounter() {
-    const selects = ['gameStyle', 'surfaceType', 'condition', 'colorPalette'];
-    const count = selects.filter(id => document.getElementById(id).value !== '').length;
-    document.getElementById('activeCount').textContent = count;
+    const ids = ['gameStyle', 'surfaceType', 'condition', 'colorPalette', 'tilingPattern'];
+    document.getElementById('activeCount').textContent = ids.filter(id => document.getElementById(id).value !== '').length;
 }
 
 function generatePrompt() {
@@ -329,49 +313,44 @@ function generatePrompt() {
     if (hasCyrillic(name)) {
         showToast('⚠️ Название на русском — нажми 🌐 EN для перевода!');
         document.getElementById('textureName').style.borderColor = '#f59e0b';
-        setTimeout(() => document.getElementById('textureName').style.borderColor = '', 3000);
+        setTimeout(() => { document.getElementById('textureName').style.borderColor = ''; }, 3000);
         return;
     }
 
-    const styleVal = document.getElementById('gameStyle').value;
+    const styleVal   = document.getElementById('gameStyle').value;
     const surfaceVal = document.getElementById('surfaceType').value;
-    const conditionVal = document.getElementById('condition').value;
+    const condVal    = document.getElementById('condition').value;
     const paletteVal = document.getElementById('colorPalette').value;
+    const patternVal = document.getElementById('tilingPattern').value;
+    const view       = viewMap[selectedView];
 
-    const view = viewMap[selectedView];
-    let parts = [];
+    const parts = ['seamless tileable ' + name + ' texture', view.positive];
 
-    // Базовая структура
-    parts.push(`seamless tileable ${name} texture`);
+    if (patternVal && patternMap[patternVal]) parts.push(patternMap[patternVal].pos);
 
-    // Ракурс — ПРИНУДИТЕЛЬНО первым после названия
-    parts.push(view.positive);
-
-    // Стиль
     if (styleVal && styleMap[styleVal]) {
         const s = styleMap[styleVal];
         parts.push(s.keywords_en, s.quality_add);
-        document.getElementById('disp-steps').textContent = s.steps;
-        document.getElementById('disp-cfg').textContent = s.cfg.toFixed(1);
+        document.getElementById('disp-steps').textContent   = s.steps;
+        document.getElementById('disp-cfg').textContent     = s.cfg.toFixed(1);
         document.getElementById('disp-sampler').textContent = s.sampler;
     } else {
-        document.getElementById('disp-steps').textContent = '4';
-        document.getElementById('disp-cfg').textContent = '1.0';
+        document.getElementById('disp-steps').textContent   = '4';
+        document.getElementById('disp-cfg').textContent     = '1.0';
         document.getElementById('disp-sampler').textContent = 'euler';
     }
 
     if (surfaceVal && surfaceMap[surfaceVal]) parts.push(surfaceMap[surfaceVal]);
-    if (conditionVal && conditionMap[conditionVal]) parts.push(conditionMap[conditionVal]);
+    if (condVal    && conditionMap[condVal])  parts.push(conditionMap[condVal]);
     if (paletteVal && paletteMap[paletteVal]) parts.push(paletteMap[paletteVal]);
 
-    // Технические требования
     parts.push('PBR material diffuse albedo map, flat uniform studio lighting, no shadows, no baked lighting, neutral grey illumination, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams');
 
     document.getElementById('positive-area').value = parts.join(', ');
 
-    // Негатив — включает антиракурс
-    const baseNeg = 'shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality';
-    document.getElementById('negative-area').value = baseNeg + ', ' + view.negative;
+    const baseNeg   = 'shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality';
+    const patNeg    = (patternVal && patternMap[patternVal]) ? ', ' + patternMap[patternVal].neg : '';
+    document.getElementById('negative-area').value = baseNeg + ', ' + view.negative + patNeg;
 
     showToast('✅ Промпт сгенерирован!');
 }
