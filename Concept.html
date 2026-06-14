@@ -50,9 +50,18 @@
     .translate-status.loading { background: rgba(245,158,11,0.15); color: var(--accent-main); display: block; }
     input, select { width: 100%; height: 48px; padding: 0 14px; background-color: var(--bg-input); border: 2px solid transparent; border-radius: 10px; color: white; font-size: 14px; transition: all 0.2s ease; cursor: pointer; }
     input:focus, select:focus { border-color: var(--accent-main); background-color: #2a3040; }
+    
+    /* Стили для отсутствия выбора (как на 1 странице) */
     select option[value=""] { color: #6b7280; font-style: italic; }
+    select.no-selection { color: #6b7280; border-color: rgba(107,114,128,0.3); }
+    
     .btn-generate { width: 100%; height: 56px; background: linear-gradient(90deg, #ea580c, var(--accent-main)); border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: auto; transition: transform 0.2s, box-shadow 0.2s; }
     .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(245,158,11,0.3); }
+    
+    /* Счетчик параметров (как на 1 странице) */
+    .params-counter { font-size: 11px; color: var(--text-secondary); text-align: center; padding: 6px; background: rgba(245, 158, 11, 0.08); border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.15); }
+    .params-counter span { color: var(--accent-main); font-weight: 700; }
+
     .result-card { display: flex; flex-direction: column; gap: 20px; }
     .prompt-block { background: var(--bg-card); border-radius: 16px; padding: 24px; position: relative; display: flex; flex-direction: column; height: 380px; }
     .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -92,7 +101,7 @@
 
         <div class="input-wrapper">
             <label>
-                Подробное описание локации
+                Подробное описание локации (Required)
                 <button class="btn-translate" id="translateBtn" onclick="translateDesc()" title="Перевести (Google)">🌐 EN</button>
             </label>
             <textarea id="conceptDesc" class="desc-area" placeholder="интерьер разрушенных древних руин, пробитый каменный потолок..." oninput="checkLang()"></textarea>
@@ -100,8 +109,9 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Стиль / Жанр игры (Обязательно)</label>
-            <select id="gameStyle">
+            <label>Стиль / Жанр игры (Optional)</label>
+            <select id="gameStyle" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="dark_fantasy">Dark Fantasy (Мрачное фэнтези)</option>
                 <option value="fantasy">High Fantasy (Эпическое фэнтези)</option>
                 <option value="scifi">Sci-Fi (Киберпанк)</option>
@@ -112,8 +122,9 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Атмосфера и настроение</label>
-            <select id="mood">
+            <label>Атмосфера и настроение (Optional)</label>
+            <select id="mood" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="dark and mysterious">Мрачная и таинственная</option>
                 <option value="epic and grand">Эпичная и величественная</option>
                 <option value="eerie and unsettling">Жуткая и тревожная</option>
@@ -124,8 +135,9 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Освещение (Свет)</label>
-            <select id="lighting">
+            <label>Освещение / Свет (Optional)</label>
+            <select id="lighting" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="dramatic lighting">Драматичное освещение</option>
                 <option value="volumetric fog, god rays">Объемный туман, лучи бога (God rays)</option>
                 <option value="cinematic low-key lighting">Кинематографичный низкий ключ</option>
@@ -136,8 +148,9 @@
         </div>
 
         <div class="input-wrapper">
-            <label>Ракурс / Перспектива</label>
-            <select id="perspective">
+            <label>Ракурс / Перспектива (Optional)</label>
+            <select id="perspective" onchange="updateSelectStyle(this); updateCounter()">
+                <option value="">— Без выбора —</option>
                 <option value="wide establishing shot">Широкий общий план</option>
                 <option value="dramatic low angle perspective">Снизу вверх (Low angle)</option>
                 <option value="bird eye view">С высоты птичьего полета</option>
@@ -146,6 +159,7 @@
             </select>
         </div>
 
+        <div class="params-counter">Активных параметров: <span id="activeCount">0</span> из 4</div>
         <button class="btn-generate" onclick="generatePrompt()">⚡ Сгенерировать концепт</button>
     </div>
 
@@ -180,7 +194,7 @@
 
 <script>
 /* =========================================================
-   ГЕНЕРАТОР ПРОМПТОВ ДЛЯ КОНЦЕПТОВ (ПОЛНОСТЬЮ ВОССТАНОВЛЕН)
+   ГЕНЕРАТОР ПРОМПТОВ ДЛЯ КОНЦЕПТОВ
    ========================================================= */
 const styleModifiers = {
     dark_fantasy: "dark fantasy style, gothic, gritty",
@@ -209,6 +223,14 @@ async function translateDesc() {
 
 function showStatus(msg, type) { const el = document.getElementById('translateStatus'); el.textContent = msg; el.className = 'translate-status ' + type; if (type === 'success') setTimeout(() => el.className = 'translate-status', 4000); }
 
+// Обновление стиля селектов и счетчика параметров (как на 1 странице)
+function updateSelectStyle(el) { el.classList.toggle('no-selection', el.value === ''); }
+function updateCounter() { 
+    const ids = ['gameStyle', 'mood', 'lighting', 'perspective']; 
+    document.getElementById('activeCount').textContent = ids.filter(id => document.getElementById(id).value !== '').length; 
+}
+window.onload = () => { document.querySelectorAll('select').forEach(s => updateSelectStyle(s)); updateCounter(); };
+
 function generatePrompt() {
     const desc = document.getElementById('conceptDesc').value.trim();
     if (!desc) return alert('Пожалуйста, введи описание локации!');
@@ -219,7 +241,16 @@ function generatePrompt() {
     const lightVal = document.getElementById('lighting').value;
     const perspVal = document.getElementById('perspective').value;
 
-    const parts = ["concept art", desc, moodVal + " atmosphere", lightVal, perspVal, styleModifiers[styleVal], qualityTags];
+    // Умная сборка: добавляем только те части, которые были выбраны пользователем
+    const parts = ["concept art", desc];
+    
+    if (moodVal) parts.push(moodVal + " atmosphere");
+    if (lightVal) parts.push(lightVal);
+    if (perspVal) parts.push(perspVal);
+    if (styleVal && styleModifiers[styleVal]) parts.push(styleModifiers[styleVal]);
+    
+    parts.push(qualityTags);
+
     document.getElementById('positive-area').value = parts.filter(Boolean).join(', ').replace(/\s+/g, ' ');
     document.getElementById('negative-area').value = "blurry, low quality, watermark, text, logo, ugly, deformed, bad anatomy, worst quality, jpeg artifacts, oversaturated, flat lighting, boring composition, amateur, sketch, draft";
     showToast('✅ Промпт готов!');
