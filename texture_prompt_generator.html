@@ -284,17 +284,17 @@ function generatePrompt() {
         document.getElementById('disp-cfg').textContent = styleMap[styleVal].cfg.toFixed(1);
         document.getElementById('disp-sampler').textContent = styleMap[styleVal].sampler;
     } else {
-        document.getElementById('disp-steps').textContent = '4'; document.getElementById('disp-cfg').textContent = '1.0'; document.getElementById('disp-sampler').textContent = 'euler';
+        document.getElementById('disp-steps').textContent = '20'; document.getElementById('disp-cfg').textContent = '7.0'; document.getElementById('disp-sampler').textContent = 'dpmpp_2m';
     }
 
     if (surfaceVal && surfaceMap[surfaceVal]) parts.push(surfaceMap[surfaceVal]);
     if (condVal && conditionMap[condVal]) parts.push(conditionMap[condVal]);
     if (paletteVal && paletteMap[paletteVal]) parts.push(paletteMap[paletteVal]);
 
-    parts.push('PBR material diffuse albedo map, flat uniform studio lighting, no shadows, no baked lighting, neutral grey illumination, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams');
+    parts.push('PBR material diffuse albedo map, evenly lit surface, soft diffuse illumination, neutral light, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, non-mirrored tiling, stochastic pattern');
 
     document.getElementById('positive-area').value = parts.join(', ');
-    const baseNeg = 'shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality';
+    const baseNeg = 'shadows, baked lighting, directional light, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality, mirror symmetry, kaleidoscope effect, reflected pattern, pure black, overexposed, washed out, too dark';
     document.getElementById('negative-area').value = baseNeg + ', ' + view.negative + (patternVal ? ', ' + patternMap[patternVal].neg : '');
 
     showToast('✅ Промпт сгенерирован!');
