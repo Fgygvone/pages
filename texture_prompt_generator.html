@@ -18,17 +18,21 @@
         --neg-border: rgba(239, 68, 68, 0.4);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
-    /* --- СТИЛИ ДЛЯ НАВИГАЦИИ --- */
-    .top-nav { display: flex; gap: 15px; margin-bottom: 30px; background: var(--bg-card); padding: 8px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
-    .nav-btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--text-secondary); transition: all 0.2s; border: 2px solid transparent; }
+    /* Защита от скролла по горизонтали при свайпе */
+    html { overflow-x: hidden; } 
+    
+    /* Анимация появления страницы (выезжает слева) */
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; animation: slideInLeft 0.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards; }
+    @keyframes slideInLeft { 0% { transform: translateX(-50vw); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+    
+    .top-nav { display: flex; gap: 15px; margin-bottom: 30px; background: var(--bg-card); padding: 8px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); z-index: 10; }
+    .nav-btn { padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; color: var(--text-secondary); transition: all 0.2s; border: 2px solid transparent; cursor: pointer; }
     .nav-btn:hover { color: white; background: var(--bg-input); }
     .nav-btn.active { background: rgba(94, 106, 255, 0.15); color: var(--accent-main); border-color: var(--accent-main); }
-    /* Спец. класс для ховера кнопки концептов (оранжевый) */
     .nav-btn.concept-btn:hover { color: #f59e0b; background: rgba(245, 158, 11, 0.1); border-color: transparent; }
 
-    .main-wrapper { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 350px 1fr; gap: 24px; }
+    .main-wrapper { width: 100%; max-width: 1200px; display: grid; grid-template-columns: 350px 1fr; gap: 24px; z-index: 10; }
     .settings-card { background-color: var(--bg-card); padding: 30px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
     .header-title { font-size: 18px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #333; padding-bottom: 10px; }
     .header-title span { color: var(--accent-main); }
@@ -71,24 +75,20 @@
     .setting-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .s-label { font-size: 10px; color: #6b7280; text-transform: uppercase; }
     .s-value { font-family: 'Consolas', monospace; font-weight: 700; font-size: 14px; }
-    .toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; border-left: 5px solid var(--accent-main); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: translateY(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 10px; z-index: 100; }
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; border-left: 5px solid var(--accent-main); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: translateY(120%); transition: transform 0.3s; display: flex; align-items: center; gap: 10px; z-index: 100; }
     .toast.show { transform: translateY(0); }
     @media (max-width: 768px) { body { padding: 20px 15px; } .main-wrapper { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<!-- ========================================== -->
-<!-- НАВИГАЦИЯ: МЕСТО ДЛЯ ВАШИХ ССЫЛОК ХОСТИНГА -->
-<!-- ========================================== -->
+<!-- === РАНДОМНЫЙ АНИМИРОВАННЫЙ ФОН === -->
+<div id="dynamic-bg-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; background-color: var(--bg-body);"></div>
+
 <div class="top-nav">
-    <!-- Ссылка на текущую (первую) страницу генератора текстур -->
-    <a href="texture_prompt_generator.html" class="nav-btn active">🧱 Текстуры</a>
-    
-    <!-- Ссылка на вторую страницу генератора концептов (замените "concept.html" на ваш url) -->
-    <a href="Concept.html" class="nav-btn concept-btn">🖼️ Локации (Концепты)</a>
+    <a onclick="navigateTo('index.html')" class="nav-btn active">🧱 Текстуры</a>
+    <a onclick="navigateTo('concept.html')" class="nav-btn concept-btn">🖼️ Локации (Концепты)</a>
 </div>
-<!-- ========================================== -->
 
 <div class="main-wrapper">
     <div class="settings-card">
@@ -98,17 +98,17 @@
             <label>Название текстуры (Required)</label>
             <div class="name-input-row">
                 <input type="text" id="textureName" placeholder="замшелые кирпичи / mossy bricks..." autocomplete="off" oninput="checkLang()">
-                <button class="btn-translate" id="translateBtn" onclick="translateName()" title="Перевести на английский (Google Translate)">🌐 EN</button>
+                <button class="btn-translate" id="translateBtn" onclick="translateName()" title="Перевести на английский">🌐 EN</button>
             </div>
             <div class="translate-status" id="translateStatus"></div>
         </div>
 
         <div class="input-wrapper">
-            <label>📐 Ракурс камеры (View Angle)</label>
+            <label>📐 Ракурс камеры</label>
             <div class="view-selector">
                 <button class="view-btn active" id="view-top" onclick="setView('top')">⬆️ Сверху (Top-Down)</button>
                 <button class="view-btn" id="view-front" onclick="setView('front')">⬛ Спереди (Front)</button>
-                <button class="view-btn" id="view-close" onclick="setView('close')">🔍 Макро (Close-up)</button>
+                <button class="view-btn" id="view-close" onclick="setView('close')">🔍 Макро (Close)</button>
                 <button class="view-btn" id="view-angle" onclick="setView('angle')">📐 Угол (Angled)</button>
             </div>
         </div>
@@ -133,49 +133,20 @@
                 <option value="floor">Пол / Земля</option>
                 <option value="wall">Стена</option>
                 <option value="ceiling">Потолок</option>
-                <option value="organic">Органика</option>
-                <option value="metal">Металл</option>
-                <option value="wood">Дерево</option>
             </select>
         </div>
 
         <div class="input-wrapper">
-            <label>Состояние (Optional)</label>
-            <select id="condition" onchange="updateSelectStyle(this); updateCounter()">
-                <option value="">— Без выбора —</option>
-                <option value="new">Новое</option>
-                <option value="used">Потёртое</option>
-                <option value="old">Старое</option>
-                <option value="ruined">Разрушенное</option>
-            </select>
-        </div>
-
-        <div class="input-wrapper">
-            <label>Тип укладки / Структура (Optional)</label>
+            <label>Тип укладки (Optional)</label>
             <select id="tilingPattern" onchange="updateSelectStyle(this); updateCounter()">
                 <option value="">— Без выбора —</option>
-                <option value="solid">Сплошной / Однородный (Solid)</option>
-                <option value="tile">Плитка квадратная (Square tiles)</option>
-                <option value="brick">Кирпичная укладка (Brick bond)</option>
-                <option value="hexagon">Шестиугольники (Hexagon tiles)</option>
+                <option value="solid">Сплошной (Solid)</option>
+                <option value="brick">Кирпичная (Brick bond)</option>
                 <option value="cobble">Булыжник (Cobblestone)</option>
-                <option value="plank">Доски / Планки (Planks)</option>
-                <option value="grid">Сетка (Grid)</option>
-                <option value="random">Хаотичный (Random/Natural)</option>
             </select>
         </div>
 
-        <div class="input-wrapper">
-            <label>Цветовая гамма (Optional)</label>
-            <select id="colorPalette" onchange="updateSelectStyle(this); updateCounter()">
-                <option value="">— Без выбора —</option>
-                <option value="neutral">Нейтральная</option>
-                <option value="warm">Тёплая</option>
-                <option value="cool">Холодная</option>
-            </select>
-        </div>
-
-        <div class="params-counter">Активных параметров: <span id="activeCount">0</span> из 5</div>
+        <div class="params-counter">Активных параметров: <span id="activeCount">0</span> из 3</div>
         <button class="btn-generate" onclick="generatePrompt()">⚡ Сгенерировать промпт</button>
     </div>
 
@@ -188,7 +159,7 @@
             <textarea id="positive-area" readonly></textarea>
             <div class="settings-grid">
                 <div class="setting-item"><span class="s-label">Steps</span><span class="s-value" id="disp-steps" style="color:#fff;">4</span></div>
-                <div class="setting-item"><span class="s-label">CFG Scale</span><span class="s-value" id="disp-cfg" style="color:#fbbf24;">1.0</span></div>
+                <div class="setting-item"><span class="s-label">CFG</span><span class="s-value" id="disp-cfg" style="color:#fbbf24;">1.0</span></div>
                 <div class="setting-item"><span class="s-label">Sampler</span><span class="s-value" id="disp-sampler" style="color:#3b82f6;">euler</span></div>
             </div>
         </div>
@@ -205,192 +176,146 @@
 <div class="toast" id="toast"><span id="toast-msg">✅ Готово!</span></div>
 
 <script>
-let selectedView = 'top';
+/* =========================================
+   ЛОГИКА СВАЙПОВ И АНИМАЦИИ ПЕРЕХОДОВ
+   ========================================= */
+const currentPage = 'texture_prompt_generator.html';
+const targetPage = 'Concept.html'; // Со страницы Текстур можно свайпнуть только ВЛЕВО (на Концепты)
 
-const viewMap = {
-    top:   { positive: 'perfectly flat top-down orthographic view, camera directly above surface looking straight down, 90 degree bird-eye angle, zero perspective distortion, completely horizontal flat surface', negative: 'side view, angled view, perspective shot, 3D perspective, oblique angle, tilted camera, diagonal view, isometric, 3/4 view, vanishing point' },
-    front: { positive: 'straight-on front view, camera perpendicular to surface, flat frontal angle, zero perspective, wall texture perspective', negative: 'top-down view, angled view, bird eye view, tilted, diagonal, 3/4 angle, side angle, perspective distortion' },
-    close: { positive: 'extreme macro close-up photography, 100mm macro lens, surface detail magnification, micro texture visible, flat field depth', negative: 'wide angle, distant shot, perspective, side view, angled, full scene, landscape' },
-    angle: { positive: 'slight 3/4 angled view, mild perspective showing surface depth, subtle angle revealing texture volume', negative: 'perfectly flat top-down, straight front view, extreme angle, fish-eye, distorted perspective' }
-};
-
-const styleMap = {
-    realistic: { keywords_en: 'photorealistic, ultra-detailed, physically accurate, raytracing', quality_add: 'hyperrealistic, 8K detail, film grain', steps: 20, cfg: 7.5, sampler: 'dpmpp_2m' },
-    stylized:  { keywords_en: 'stylized, hand-painted, artistic, vibrant colors, expressive', quality_add: 'game art style, painterly, vivid saturation', steps: 25, cfg: 7.0, sampler: 'euler_a' },
-    lowpoly:   { keywords_en: 'low poly, geometric, flat shading, minimal detail', quality_add: 'indie game style, clean topology', steps: 4, cfg: 1.0, sampler: 'euler' },
-    scifi:     { keywords_en: 'sci-fi, futuristic, high-tech, industrial, mechanical', quality_add: 'cyberpunk aesthetic, metallic, neon', steps: 25, cfg: 7.0, sampler: 'dpmpp_2m' },
-    fantasy:   { keywords_en: 'fantasy, magical, mystical, ornate, enchanted', quality_add: 'epic fantasy art, rich detail, glowing', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' },
-    horror:    { keywords_en: 'horror, dark, disturbing, decayed, ominous, sinister', quality_add: 'dark atmosphere, unsettling, gritty', steps: 30, cfg: 7.5, sampler: 'dpmpp_2m' }
-};
-
-const patternMap = {
-    solid:   { pos: 'uniform solid surface, no tile pattern, seamless continuous material, no joints, no grout lines', neg: 'tiles, bricks, grout lines, joints, tile pattern, grid, hexagons, cobblestone, planks' },
-    tile:    { pos: 'square tile pattern, uniform tile grid, clean grout lines, regular geometric tiles', neg: 'solid surface, random pattern, cobblestone, brick bond, hexagon' },
-    brick:   { pos: 'brick bond pattern, offset rows, mortar joints, staggered brick layout', neg: 'solid surface, square tiles, random, hexagon, cobblestone' },
-    hexagon: { pos: 'hexagonal tile pattern, honeycomb layout, six-sided tiles, geometric hexagon grid', neg: 'solid surface, square tiles, brick pattern, random, cobblestone' },
-    cobble:  { pos: 'cobblestone pattern, irregular rounded stones, natural stone paving, varied stone sizes', neg: 'solid surface, regular tiles, grid pattern, hexagon, brick' },
-    plank:   { pos: 'plank pattern, parallel board layout, linear strips arrangement', neg: 'solid surface, tiles, hexagon, cobblestone, grid' },
-    grid:    { pos: 'grid pattern, rectangular grid layout, evenly spaced lines, regular grid divisions', neg: 'solid surface, random pattern, cobblestone, hexagon' },
-    random:  { pos: 'natural random pattern, organic irregular surface, no repeating pattern, chaotic natural layout', neg: 'regular tiles, grid, geometric pattern, uniform layout, brick bond' }
-};
-
-const conditionMap = {
-    new:    'pristine, perfectly clean, undamaged, factory fresh',
-    used:   'worn, slightly weathered, minor scratches, soft patina',
-    old:    'heavily aged, weathered, eroded, antique',
-    ruined: 'severely damaged, crumbling, decay, destruction'
-};
-
-const paletteMap = {
-    neutral: 'grey palette, monochromatic, no strong saturation',
-    warm:    'warm earth tones, brown and orange hues',
-    cool:    'cool blue tones, cold ambient'
-};
-
-const surfaceMap = {
-    floor:   'ground surface material',
-    wall:    'vertical wall surface material',
-    ceiling: 'overhead ceiling surface',
-    organic: 'natural organic surface',
-    metal:   'metallic industrial surface',
-    wood:    'wood grain surface material'
-};
-
-function setView(view) {
-    selectedView = view;
-    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('view-' + view).classList.add('active');
+function navigateTo(url) {
+    if(url === currentPage) return;
+    document.body.style.transition = 'transform 0.3s ease-in, opacity 0.3s ease-in';
+    document.body.style.transform = 'translateX(-50vw)';
+    document.body.style.opacity = '0';
+    setTimeout(() => window.location.href = url, 300);
 }
 
-function hasCyrillic(text) {
-    return /[а-яёА-ЯЁ]/.test(text);
+let startX = 0; let currentX = 0; let isDragging = false;
+document.addEventListener('mousedown', startDrag); document.addEventListener('touchstart', startDrag);
+document.addEventListener('mousemove', drag);      document.addEventListener('touchmove', drag);
+document.addEventListener('mouseup', endDrag);     document.addEventListener('touchend', endDrag);
+
+function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+function startDrag(e) {
+    // Игнорируем свайп, если курсор на полях ввода или кнопках
+    const tag = e.target.tagName.toLowerCase();
+    if (['input', 'textarea', 'select', 'button', 'a', 'option'].includes(tag)) return;
+    
+    startX = getX(e);
+    isDragging = true;
+    document.body.style.transition = 'none';
 }
 
-function checkLang() {
-    const name = document.getElementById('textureName').value;
-    const btn = document.getElementById('translateBtn');
-    if (hasCyrillic(name)) {
-        btn.style.borderColor = '#f59e0b';
-        btn.style.color = '#fbbf24';
-    } else {
-        btn.style.borderColor = 'rgba(94,106,255,0.3)';
-        btn.style.color = '#a5b4fc';
+function drag(e) {
+    if (!isDragging) return;
+    currentX = getX(e);
+    let deltaX = currentX - startX;
+    
+    // На этой странице разрешаем тянуть только влево (к Концептам). Вправо - сильное сопротивление.
+    if (deltaX > 0) deltaX = deltaX * 0.15; 
+    document.body.style.transform = `translateX(${deltaX}px)`;
+}
+
+function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    let deltaX = currentX - startX;
+    document.body.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+    
+    if (deltaX < -150) { // Свайпнули влево достаточно сильно -> Переход
+        document.body.style.transform = 'translateX(-100vw)';
+        document.body.style.opacity = '0';
+        setTimeout(() => window.location.href = targetPage, 300);
+    } else { // Возврат на место
+        document.body.style.transform = 'translateX(0)';
     }
 }
 
-// ПЕРЕВОДЧИК ЧЕРЕЗ БЕСПЛАТНЫЙ GOOGLE TRANSLATE API
+/* =========================================
+   РАНДОМНЫЙ ФОН
+   ========================================= */
+(function initRandomBackground() {
+    const container = document.getElementById('dynamic-bg-container');
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-main').trim();
+    function hexToRgb(h){ let c=h.replace('#',''); return `${parseInt(c.substring(0,2),16)},${parseInt(c.substring(2,4),16)},${parseInt(c.substring(4,6),16)}`; }
+    const rgbAccent = hexToRgb(accentColor);
+    const bgType = Math.floor(Math.random() * 3);
+
+    if (bgType === 0) { // Шум / Latent
+        container.innerHTML = `<div class="latent-blob blob-1"></div><div class="latent-blob blob-2"></div>`;
+        const s = document.createElement('style');
+        s.innerHTML = `.latent-blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.15;animation:dr 20s infinite alternate ease-in-out;}.blob-1{width:60vw;height:60vw;background:${accentColor};top:-10%;left:-10%;}.blob-2{width:50vw;height:50vw;background:#fff;bottom:-10%;right:-10%;animation-delay:-5s;opacity:0.05;}@keyframes dr{0%{transform:translate(0,0) scale(1);}100%{transform:translate(15%,20%) scale(1.2) rotate(15deg);}}`;
+        document.head.appendChild(s);
+    } else if (bgType === 1) { // Пыль
+        const cvs = document.createElement('canvas'); container.appendChild(cvs); const ctx = cvs.getContext('2d');
+        let w, h; let parts = [];
+        function rs() { w=cvs.width=window.innerWidth; h=cvs.height=window.innerHeight; }
+        window.addEventListener('resize', rs); rs();
+        class Mote {
+            constructor(){ this.x=Math.random()*w; this.y=Math.random()*h; this.r=Math.random()*2+0.5; this.vy=-(Math.random()*0.3+0.1); this.vx=(Math.random()-0.5)*0.2; this.a=Math.random()*0.5; this.fd=(Math.random()-0.5)*0.01; }
+            update(){ this.y+=this.vy; this.x+=this.vx; this.a+=this.fd; if(this.a>0.6||this.a<0)this.fd*=-1; if(this.y<-10)this.y=h+10; }
+            draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle=`rgba(${rgbAccent},${Math.max(0,this.a)})`; ctx.fill(); }
+        }
+        for(let i=0;i<70;i++) parts.push(new Mote());
+        function anim() { ctx.clearRect(0,0,w,h); parts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(anim); }
+        anim();
+    } else { // Матрица / Поток данных
+        const cvs = document.createElement('canvas'); container.appendChild(cvs); const ctx = cvs.getContext('2d');
+        let w, h; let cols; const fontSize=14; let drops=[];
+        function rs() { w=cvs.width=window.innerWidth; h=cvs.height=window.innerHeight; cols=w/fontSize; drops=[]; for(let i=0;i<cols;i++)drops[i]=Math.random()*h; }
+        window.addEventListener('resize', rs); rs();
+        function animMatrix() {
+            ctx.fillStyle = `rgba(15, 18, 25, 0.1)`; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = `rgba(${rgbAccent}, 0.3)`; ctx.font = fontSize+"px monospace";
+            for(let i=0;i<drops.length;i++){
+                const text = Math.floor(Math.random()*2);
+                ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+                if(drops[i]*fontSize > h && Math.random()>0.975) drops[i]=0; drops[i]++;
+            }
+        }
+        setInterval(animMatrix, 50);
+    }
+})();
+
+/* =========================================
+   ОСНОВНАЯ ЛОГИКА (ГЕНЕРАТОР)
+   ========================================= */
+let selectedView = 'top';
+const viewMap = { top: { positive: 'perfectly flat top-down orthographic view', negative: 'perspective, angled' }, front: { positive: 'straight-on front view', negative: 'angled, top-down' }, close: { positive: 'extreme macro close-up photography', negative: 'wide angle' }, angle: { positive: 'slight 3/4 angled view', negative: 'flat top-down' } };
+const styleMap = { realistic: { keywords_en: 'photorealistic, 8K', steps: 20, cfg: 7.5, sampler: 'dpmpp_2m' }, lowpoly: { keywords_en: 'low poly, flat shading', steps: 4, cfg: 1.0, sampler: 'euler' } };
+
+function setView(view) { selectedView = view; document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active')); document.getElementById('view-' + view).classList.add('active'); }
+function hasCyrillic(text) { return /[а-яёА-ЯЁ]/.test(text); }
+function checkLang() { const n = document.getElementById('textureName').value; const b = document.getElementById('translateBtn'); b.style.color = hasCyrillic(n) ? '#fbbf24' : '#a5b4fc'; }
+
 async function translateName() {
     const name = document.getElementById('textureName').value.trim();
     if (!name) return;
-    if (!hasCyrillic(name)) { showStatus('Текст уже на английском!', 'success'); return; }
-
-    const btn = document.getElementById('translateBtn');
-    btn.classList.add('loading');
-    btn.textContent = '⏳';
-    showStatus('Переводим...', 'loading');
-
+    const btn = document.getElementById('translateBtn'); btn.classList.add('loading');
     try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(name)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        // Извлекаем переведенный текст
-        const translated = data[0].map(item => item[0]).join(' ').trim().replace(/['"]/g, '');
-        
-        document.getElementById('textureName').value = translated;
-        showStatus('✅ Переведено: "' + translated + '"', 'success');
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        document.getElementById('textureName').value = data[0].map(i=>i[0]).join(' ').trim();
         checkLang();
-    } catch (err) {
-        showStatus('❌ Ошибка сети — введи название вручную', 'error');
-        console.error("Ошибка перевода:", err);
-    } finally {
-        btn.classList.remove('loading');
-        btn.innerHTML = '🌐 EN';
-    }
+    } catch (e) { alert("Ошибка перевода"); } finally { btn.classList.remove('loading'); }
 }
 
-function showStatus(msg, type) {
-    const el = document.getElementById('translateStatus');
-    el.textContent = msg;
-    el.className = 'translate-status ' + type;
-    if (type === 'success') setTimeout(() => { el.className = 'translate-status'; }, 4000);
-}
-
-function updateSelectStyle(el) {
-    el.classList.toggle('no-selection', el.value === '');
-}
-
-function updateCounter() {
-    const ids = ['gameStyle', 'surfaceType', 'condition', 'colorPalette', 'tilingPattern'];
-    document.getElementById('activeCount').textContent = ids.filter(id => document.getElementById(id).value !== '').length;
-}
+function updateSelectStyle(el) { el.classList.toggle('no-selection', el.value === ''); }
+function updateCounter() { const ids = ['gameStyle', 'surfaceType', 'tilingPattern']; document.getElementById('activeCount').textContent = ids.filter(id => document.getElementById(id).value !== '').length; }
 
 function generatePrompt() {
     const name = document.getElementById('textureName').value.trim();
-    if (!name) { alert('Введи название текстуры!'); return; }
-
-    if (hasCyrillic(name)) {
-        showToast('⚠️ Название на русском — нажми 🌐 EN для перевода!');
-        document.getElementById('textureName').style.borderColor = '#f59e0b';
-        setTimeout(() => { document.getElementById('textureName').style.borderColor = ''; }, 3000);
-        return;
-    }
-
-    const styleVal   = document.getElementById('gameStyle').value;
-    const surfaceVal = document.getElementById('surfaceType').value;
-    const condVal    = document.getElementById('condition').value;
-    const paletteVal = document.getElementById('colorPalette').value;
-    const patternVal = document.getElementById('tilingPattern').value;
-    const view       = viewMap[selectedView];
-
-    const parts = ['seamless tileable ' + name + ' texture', view.positive];
-
-    if (patternVal && patternMap[patternVal]) parts.push(patternMap[patternVal].pos);
-
-    if (styleVal && styleMap[styleVal]) {
-        const s = styleMap[styleVal];
-        parts.push(s.keywords_en, s.quality_add);
-        document.getElementById('disp-steps').textContent   = s.steps;
-        document.getElementById('disp-cfg').textContent     = s.cfg.toFixed(1);
-        document.getElementById('disp-sampler').textContent = s.sampler;
-    } else {
-        document.getElementById('disp-steps').textContent   = '4';
-        document.getElementById('disp-cfg').textContent     = '1.0';
-        document.getElementById('disp-sampler').textContent = 'euler';
-    }
-
-    if (surfaceVal && surfaceMap[surfaceVal]) parts.push(surfaceMap[surfaceVal]);
-    if (condVal    && conditionMap[condVal])  parts.push(conditionMap[condVal]);
-    if (paletteVal && paletteMap[paletteVal]) parts.push(paletteMap[paletteVal]);
-
-    parts.push('PBR material diffuse albedo map, flat uniform studio lighting, no shadows, no baked lighting, neutral grey illumination, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams');
-
-    document.getElementById('positive-area').value = parts.join(', ');
-
-    const baseNeg   = 'shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality';
-    const patNeg    = (patternVal && patternMap[patternVal]) ? ', ' + patternMap[patternVal].neg : '';
-    document.getElementById('negative-area').value = baseNeg + ', ' + view.negative + patNeg;
-
+    if (!name) return alert('Введи название текстуры!');
+    
+    let pos = `seamless tileable ${name} texture, ` + viewMap[selectedView].positive;
+    document.getElementById('positive-area').value = pos + ', high quality PBR material, game ready asset';
+    document.getElementById('negative-area').value = 'shadows, baked lighting, low quality, ' + viewMap[selectedView].negative;
     showToast('✅ Промпт сгенерирован!');
 }
 
-function copyText(id) {
-    const text = document.getElementById(id).value;
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано!'));
-}
-
-function showToast(msg) {
-    const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-window.onload = () => {
-    document.querySelectorAll('select').forEach(s => updateSelectStyle(s));
-    updateCounter();
-};
+function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => showToast('📋 Скопировано!')); }
+function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 </script>
 </body>
 </html>
