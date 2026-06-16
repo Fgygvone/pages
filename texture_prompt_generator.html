@@ -275,7 +275,9 @@ function generatePrompt() {
     const patternVal = document.getElementById('tilingPattern').value;
     const view = viewMap[selectedView];
 
-    const parts = ['seamless tileable ' + name + ' texture', view.positive];
+    const isTiledPattern = ['tile', 'brick', 'hexagon', 'cobble', 'plank', 'grid'].includes(patternVal);
+    const baseTag = isTiledPattern ? 'seamless tileable' : 'seamless continuous';
+    const parts = [baseTag + ' ' + name + ' texture', view.positive];
     if (patternVal && patternMap[patternVal]) parts.push(patternMap[patternVal].pos);
     
     if (styleVal && styleMap[styleVal]) {
@@ -284,17 +286,20 @@ function generatePrompt() {
         document.getElementById('disp-cfg').textContent = styleMap[styleVal].cfg.toFixed(1);
         document.getElementById('disp-sampler').textContent = styleMap[styleVal].sampler;
     } else {
-        document.getElementById('disp-steps').textContent = '20'; document.getElementById('disp-cfg').textContent = '7.0'; document.getElementById('disp-sampler').textContent = 'dpmpp_2m';
+        document.getElementById('disp-steps').textContent = '4'; document.getElementById('disp-cfg').textContent = '1.0'; document.getElementById('disp-sampler').textContent = 'euler';
     }
 
     if (surfaceVal && surfaceMap[surfaceVal]) parts.push(surfaceMap[surfaceVal]);
     if (condVal && conditionMap[condVal]) parts.push(conditionMap[condVal]);
     if (paletteVal && paletteMap[paletteVal]) parts.push(paletteMap[paletteVal]);
 
-    parts.push('PBR material diffuse albedo map, evenly lit surface, soft diffuse illumination, neutral light, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, non-mirrored tiling, stochastic pattern');
+    parts.push('PBR material diffuse albedo map, flat uniform studio lighting, no shadows, no baked lighting, neutral grey illumination, game ready asset, Unity HDRP compatible, high surface detail, perfectly tiling, no seams');
 
     document.getElementById('positive-area').value = parts.join(', ');
-    const baseNeg = 'shadows, baked lighting, directional light, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality, mirror symmetry, kaleidoscope effect, reflected pattern, pure black, overexposed, washed out, too dark';
+    const tileBlocker = (!patternVal || patternVal === 'solid' || patternVal === 'random')
+        ? ', tiles, tile pattern, square tiles, hexagonal tiles, grout lines, floor tiles, bathroom tiles, grid lines, brick pattern, repeating geometric blocks, mosaic'
+        : '';
+    const baseNeg = 'shadows, baked lighting, directional highlights, specular glare, gradient, vignette, blurry, watermark, text, logo, border, visible seam, non-tileable, asymmetric, chromatic aberration, low quality, mirror symmetry, kaleidoscope, pure black, too dark' + tileBlocker;
     document.getElementById('negative-area').value = baseNeg + ', ' + view.negative + (patternVal ? ', ' + patternMap[patternVal].neg : '');
 
     showToast('✅ Промпт сгенерирован!');
